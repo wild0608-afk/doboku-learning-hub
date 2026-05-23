@@ -1,0 +1,16 @@
+{
+  "name": "Takken Learning Hub",
+  "short_name": "Takken",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0B5D3B",
+  "theme_color": "#0B5D3B",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
