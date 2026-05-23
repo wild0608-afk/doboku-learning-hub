@@ -1,0 +1,12 @@
+# 古いZIP展開フォルダ
+takken-learning-hub-main/
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# エディタ設定
+.vscode/
+.idea/
+*.swp
