@@ -54,6 +54,25 @@ const Store = {
   reset() { this.save({}); },
 };
 
+// ── UTILITIES ──────────────────────────────────────────────────────────
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // ── QUIZ LOGIC ─────────────────────────────────────────────────────────
 function startQuiz(mode, category) {
   const hist = Store.history();
@@ -64,7 +83,7 @@ function startQuiz(mode, category) {
       qs = QUESTIONS.filter(q => q.category === category);
       break;
     case 'random':
-      qs = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 10);
+      qs = shuffleArray(QUESTIONS).slice(0, 10);
       break;
     case 'review':
       qs = QUESTIONS.filter(q => {
@@ -235,10 +254,10 @@ function renderCategories() {
     const rate     = attempts > 0 ? Math.round(correct / attempts * 100) : null;
 
     return `
-    <div class="cat-card" data-action="start-category" data-value="${cat}">
+    <div class="cat-card" data-action="start-category" data-value="${escapeHTML(cat)}">
       <div class="cat-icon">${icons[cat] || '📖'}</div>
       <div class="cat-info">
-        <div class="cat-name">${cat}</div>
+        <div class="cat-name">${escapeHTML(cat)}</div>
         <div class="cat-meta">${done} / ${qs.length}問 学習済み</div>
       </div>
       <div class="cat-rate">
@@ -280,7 +299,7 @@ function renderQuiz() {
     return `
     <button class="${cls}" data-action="answer" data-value="${i}" ${answered ? 'disabled' : ''}>
       <span class="opt-num">${labels[i]}</span>
-      <span class="opt-text">${opt}</span>
+      <span class="opt-text">${escapeHTML(opt)}</span>
     </button>`;
   }).join('');
 
@@ -304,7 +323,7 @@ function renderQuiz() {
     explanation = `
     <div class="explanation">
       <div class="expl-title">💡 解説</div>
-      <div class="expl-text">${q.explanation}</div>
+      <div class="expl-text">${escapeHTML(q.explanation)}</div>
     </div>`;
 
     const isLast = num === total;
@@ -315,7 +334,7 @@ function renderQuiz() {
   }
 
   const modeNames = {
-    category: q.category,
+    category: escapeHTML(q.category),
     random: 'ランダムテスト',
     review: '間違い復習',
     bookmark: '付箋問題',
@@ -341,10 +360,10 @@ function renderQuiz() {
     <div class="quiz-body">
       <div class="q-card">
         <div class="q-card-top">
-          <span class="q-tag">${q.category}</span>
+          <span class="q-tag">${escapeHTML(q.category)}</span>
           <span class="q-num">問題 ${num} / ${total}</span>
         </div>
-        <div class="q-text">${q.question}</div>
+        <div class="q-text">${escapeHTML(q.question)}</div>
       </div>
       <div class="options">${opts}</div>
       ${feedback}
@@ -394,8 +413,8 @@ function renderResult() {
     <div class="wrong-title">❌ 間違えた問題（${wrongQs.length}問）</div>
     ${wrongQs.map(q => `
     <div class="wrong-item">
-      <div class="wrong-cat">${q.category}</div>
-      <div class="wrong-q">${q.question}</div>
+      <div class="wrong-cat">${escapeHTML(q.category)}</div>
+      <div class="wrong-q">${escapeHTML(q.question)}</div>
     </div>`).join('')}
   </div>` : '';
 
@@ -459,7 +478,7 @@ function renderStats() {
     <div class="cat-stat-row">
       <span class="cat-stat-icon">${icons[cat] || '📖'}</span>
       <div class="cat-stat-info">
-        <div class="cat-stat-name">${cat}</div>
+        <div class="cat-stat-name">${escapeHTML(cat)}</div>
         <div class="cat-stat-count">${att > 0 ? att + '回解答 / 正解' + cr + '回' : '未挑戦'}</div>
         <div class="cat-bar-track">
           <div class="cat-bar-fill" style="width:${r}%"></div>

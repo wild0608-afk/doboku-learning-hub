@@ -86,7 +86,7 @@ html, body {
 .quiz-header {
   background: linear-gradient(140deg, var(--g900) 0%, var(--g500) 100%);
   color: var(--white);
-  padding: 13px 16px;
+  padding: calc(13px + env(safe-area-inset-top, 0px)) 16px 13px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -113,7 +113,7 @@ html, body {
   flex-shrink: 0;
   font-family: var(--font);
   transition: background var(--ease);
-  min-height: 36px;
+  min-height: 44px;
 }
 .btn-back:active { background: rgba(255,255,255,0.34); }
 .btn-back-arrow { font-size: 16px; line-height: 1; }
@@ -137,7 +137,7 @@ html, body {
 }
 
 .bookmark-btn {
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   background: rgba(255,255,255,0.18);
   border: none; color: white;
@@ -156,7 +156,7 @@ html, body {
 .home-hero {
   background: linear-gradient(160deg, var(--g900) 0%, var(--g500) 100%);
   color: var(--white);
-  padding: 36px 20px 30px;
+  padding: calc(36px + env(safe-area-inset-top, 0px)) 20px 30px;
   text-align: center;
 }
 
@@ -579,7 +579,7 @@ html, body {
 }
 
 /* ── STATS ── */
-.stats-body { padding: 14px; }
+.stats-body { padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
 
 .stats-card {
   background: var(--white);
@@ -677,6 +677,7 @@ html, body {
   cursor: pointer;
   font-family: var(--font);
   margin-top: 4px;
+  min-height: 44px;
   transition: background var(--ease);
 }
 .reset-btn:active { background: var(--red-bg); }
