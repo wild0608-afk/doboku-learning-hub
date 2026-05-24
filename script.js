@@ -556,7 +556,7 @@ document.getElementById('app').addEventListener('click', e => {
       break;
 
     case 'bookmark': {
-      const qid = parseInt(el.dataset.qid);
+      const qid = el.dataset.qid;
       const now  = Store.toggleBookmark(qid);
       el.className   = `bookmark-btn ${now ? 'active' : ''}`;
       el.textContent = now ? '🔖' : '☆';
