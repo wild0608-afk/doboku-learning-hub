@@ -12,6 +12,7 @@
   --g600: #357A5B;
   --g500: #40916C;
   --g400: #52B788;
+  --g300: #74C69D;
   --g200: #B7E4C7;
   --g100: #D8F3DC;
   --g50:  #F0FAF4;
@@ -281,7 +282,7 @@ html, body {
 
 /* ── RANDOM COUNT SELECTION ── */
 .count-select-body {
-  padding: 28px 14px;
+  padding: 28px 14px calc(28px + env(safe-area-inset-bottom, 0px));
 }
 
 .count-select-label {
@@ -330,7 +331,7 @@ html, body {
 
 /* ── CHAPTER SELECTION ── */
 .chapter-select-body {
-  padding: 20px 14px 28px;
+  padding: 20px 14px calc(28px + env(safe-area-inset-bottom, 0px));
 }
 
 .chapter-select-label {
