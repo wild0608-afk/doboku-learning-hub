@@ -665,6 +665,72 @@ html, body {
   flex-shrink: 0;
 }
 
+/* 分野別行 — 最終学習日 */
+.cat-stat-date {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 5px;
+}
+
+/* 苦手問題 TOP5 */
+.weak-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.weak-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.weak-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.weak-rank {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--text-sub);
+  min-width: 22px;
+  padding-top: 2px;
+}
+
+.weak-info { flex: 1; min-width: 0; }
+
+.weak-cat-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--g700);
+  background: var(--g100);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.weak-q-text {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.55;
+}
+
+.weak-wrong-count {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--red);
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.weak-empty {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 14px;
+  padding: 16px 0 4px;
+}
+
 .reset-btn {
   width: 100%;
   padding: 15px;

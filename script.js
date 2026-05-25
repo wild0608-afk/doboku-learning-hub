@@ -73,6 +73,11 @@ function shuffleArray(arr) {
   return a;
 }
 
+function formatDate(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // ── QUIZ LOGIC ─────────────────────────────────────────────────────────
 function startQuiz(mode, category) {
   const hist = Store.history();
@@ -89,6 +94,10 @@ function startQuiz(mode, category) {
       qs = QUESTIONS.filter(q => {
         const h = hist[q.id];
         return h && h.attempts > 0 && h.correct < h.attempts;
+      });
+      qs.sort((a, b) => {
+        const ha = hist[a.id], hb = hist[b.id];
+        return (hb.attempts - hb.correct) - (ha.attempts - ha.correct);
       });
       break;
     case 'bookmark':
@@ -463,26 +472,72 @@ function renderStats() {
   const corr   = vals.reduce((s, h) => s + h.correct,  0);
   const rate   = total > 0 ? Math.round(corr / total * 100) : 0;
   const bkCnt  = vals.filter(h => h.bookmarked).length;
+  const done   = vals.filter(h => h.attempts > 0).length;
+  const undone = Math.max(0, QUESTIONS.length - done);
 
   const icons = {
     '権利関係': '⚖️', '宅建業法': '🏢',
     '法令上の制限': '📋', '税・その他': '💴',
   };
 
+  // 苦手問題 TOP5（誤答数降順）
+  const weakQs = QUESTIONS
+    .filter(q => {
+      const h = hist[q.id];
+      return h && h.attempts > 0 && h.correct < h.attempts;
+    })
+    .sort((a, b) => {
+      const ha = hist[a.id], hb = hist[b.id];
+      return (hb.attempts - hb.correct) - (ha.attempts - ha.correct);
+    })
+    .slice(0, 5);
+
+  const weakList = weakQs.length > 0
+    ? weakQs.map((q, i) => {
+        const h        = hist[q.id];
+        const wrongCnt = h.attempts - h.correct;
+        const qText    = q.question.length > 34
+          ? escapeHTML(q.question.slice(0, 34)) + '…'
+          : escapeHTML(q.question);
+        return `
+        <div class="weak-item">
+          <div class="weak-rank">${i + 1}</div>
+          <div class="weak-info">
+            <div class="weak-cat-tag">${escapeHTML(q.category)}</div>
+            <div class="weak-q-text">${qText}</div>
+          </div>
+          <div class="weak-wrong-count">×${wrongCnt}</div>
+        </div>`;
+      }).join('')
+    : '<div class="weak-empty">まだ間違えた問題がありません ✨</div>';
+
+  // 分野別成績行
   const catRows = CATEGORIES.map(cat => {
-    const qs  = QUESTIONS.filter(q => q.category === cat);
-    const att = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
-    const cr  = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
-    const r   = att > 0 ? Math.round(cr / att * 100) : 0;
+    const qs        = QUESTIONS.filter(q => q.category === cat);
+    const catDone   = qs.filter(q => hist[q.id]?.attempts > 0).length;
+    const catUndone = qs.length - catDone;
+    const att       = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+    const cr        = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+    const r         = att > 0 ? Math.round(cr / att * 100) : 0;
+    const latestAt  = qs.reduce((max, q) => Math.max(max, hist[q.id]?.lastAt || 0), 0);
+
+    const countText = att > 0
+      ? `${att}回解答 / 正解${cr}回　未学習${catUndone}問`
+      : `未挑戦（全${qs.length}問）`;
+    const dateHtml = latestAt > 0
+      ? `<div class="cat-stat-date">最終学習: ${formatDate(latestAt)}</div>`
+      : '';
+
     return `
     <div class="cat-stat-row">
       <span class="cat-stat-icon">${icons[cat] || '📖'}</span>
       <div class="cat-stat-info">
         <div class="cat-stat-name">${escapeHTML(cat)}</div>
-        <div class="cat-stat-count">${att > 0 ? att + '回解答 / 正解' + cr + '回' : '未挑戦'}</div>
+        <div class="cat-stat-count">${countText}</div>
         <div class="cat-bar-track">
           <div class="cat-bar-fill" style="width:${r}%"></div>
         </div>
+        ${dateHtml}
       </div>
       <div class="cat-stat-rate">${att > 0 ? r + '%' : '─'}</div>
     </div>`;
@@ -516,7 +571,16 @@ function renderStats() {
             <div class="stats-metric-val">${bkCnt}</div>
             <div class="stats-metric-label">付箋数</div>
           </div>
+          <div class="stats-metric" style="grid-column:1/-1">
+            <div class="stats-metric-val">${undone}</div>
+            <div class="stats-metric-label">未学習問題</div>
+          </div>
         </div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-card-title">⚠️ 苦手問題 TOP5</div>
+        <div class="weak-list">${weakList}</div>
       </div>
 
       <div class="stats-card">
