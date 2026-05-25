@@ -328,6 +328,72 @@ html, body {
   font-weight: 600;
 }
 
+/* ── CHAPTER SELECTION ── */
+.chapter-select-body {
+  padding: 20px 14px 28px;
+}
+
+.chapter-select-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+  margin-bottom: 10px;
+  padding-left: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chapter-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 18px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  font-family: var(--font);
+  transition: border-color var(--ease), transform var(--ease);
+  width: 100%;
+  margin-bottom: 10px;
+}
+.chapter-card:hover  { border-color: var(--g400); }
+.chapter-card:active { transform: scale(0.98); border-color: var(--g500); }
+
+.chapter-all {
+  border-color: var(--g300);
+  background: linear-gradient(135deg, #f0faf4, var(--white));
+  margin-bottom: 18px;
+}
+
+.chapter-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.chapter-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.chapter-meta {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.chapter-rate {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--g600);
+  min-width: 50px;
+  text-align: right;
+}
+
 /* ── QUIZ Progress ── */
 .quiz-progress-track {
   height: 6px;

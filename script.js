@@ -1,3 +1,5 @@
+const CHAPTER_SIZE = 25;
+
 // ── STATE ──────────────────────────────────────────────────────────────
 const App = {
   screen: 'home',
@@ -8,6 +10,7 @@ const App = {
   selectedAnswer: null,
   sessionResults: [],
   randomCount: 10,
+  selectedCategory: null,
 };
 
 // ── STORAGE ────────────────────────────────────────────────────────────
@@ -80,13 +83,14 @@ function formatDate(ts) {
 }
 
 // ── QUIZ LOGIC ─────────────────────────────────────────────────────────
-function startQuiz(mode, category) {
+function startQuiz(mode, category, chapterStart) {
   const hist = Store.history();
   let qs = [];
 
   switch (mode) {
     case 'category':
       qs = QUESTIONS.filter(q => q.category === category);
+      if (chapterStart !== undefined) qs = qs.slice(chapterStart, chapterStart + CHAPTER_SIZE);
       break;
     case 'random':
       qs = shuffleArray(QUESTIONS).slice(0, App.randomCount);
@@ -166,12 +170,13 @@ function go(screen) {
 // ── RENDER ─────────────────────────────────────────────────────────────
 function render() {
   const fns = {
-    home:           renderHome,
-    categories:     renderCategories,
-    'random-count': renderRandomCount,
-    quiz:           renderQuiz,
-    result:         renderResult,
-    stats:          renderStats,
+    home:                renderHome,
+    categories:          renderCategories,
+    'category-chapters': renderCategoryChapters,
+    'random-count':      renderRandomCount,
+    quiz:                renderQuiz,
+    result:              renderResult,
+    stats:               renderStats,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -287,6 +292,60 @@ function renderCategories() {
       <div class="header-title">分野を選ぶ</div>
     </div>
     <div class="cat-list">${cards}</div>
+  </div>`;
+}
+
+// ── CATEGORY CHAPTERS ─────────────────────────────────────────────────
+function renderCategoryChapters() {
+  const cat  = App.selectedCategory;
+  const hist = Store.history();
+  const icons = {
+    '権利関係': '⚖️', '宅建業法': '🏢',
+    '法令上の制限': '📋', '税・その他': '💴',
+  };
+
+  const allQs   = QUESTIONS.filter(q => q.category === cat);
+  const allAtt  = allQs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+  const allCr   = allQs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+  const allRate = allAtt > 0 ? Math.round(allCr / allAtt * 100) + '%' : '─';
+
+  const chapterCards = [];
+  for (let start = 0; start < allQs.length; start += CHAPTER_SIZE) {
+    const chQs   = allQs.slice(start, start + CHAPTER_SIZE);
+    const chAtt  = chQs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+    const chCr   = chQs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+    const chDone = chQs.filter(q => hist[q.id]?.attempts > 0).length;
+    const chRate = chAtt > 0 ? Math.round(chCr / chAtt * 100) + '%' : '─';
+    const chNum  = Math.floor(start / CHAPTER_SIZE) + 1;
+    chapterCards.push(`
+    <button class="chapter-card" data-action="start-chapter" data-value="${start}">
+      <div class="chapter-left">
+        <div class="chapter-title">Chapter ${chNum}</div>
+        <div class="chapter-meta">${chQs.length}問 ・ 学習済み${chDone}問</div>
+      </div>
+      <div class="chapter-rate">${chRate}</div>
+    </button>`);
+  }
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-categories">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">${icons[cat] || '📖'} ${escapeHTML(cat)}</div>
+    </div>
+    <div class="chapter-select-body">
+      <button class="chapter-card chapter-all" data-action="start-chapter-all">
+        <div class="chapter-left">
+          <div class="chapter-title">全問まとめて</div>
+          <div class="chapter-meta">${allQs.length}問</div>
+        </div>
+        <div class="chapter-rate">${allRate}</div>
+      </button>
+      <div class="chapter-select-label">チャプター別に解く</div>
+      ${chapterCards.join('')}
+    </div>
   </div>`;
 }
 
@@ -643,7 +702,19 @@ document.getElementById('app').addEventListener('click', e => {
       break;
     case 'start-review':   startQuiz('review');                      break;
     case 'start-bookmark': startQuiz('bookmark');                    break;
-    case 'start-category': startQuiz('category', el.dataset.value);  break;
+    case 'start-category': {
+      App.selectedCategory = el.dataset.value;
+      const catQs = QUESTIONS.filter(q => q.category === App.selectedCategory);
+      if (catQs.length > CHAPTER_SIZE) go('category-chapters');
+      else startQuiz('category', App.selectedCategory);
+      break;
+    }
+    case 'start-chapter':
+      startQuiz('category', App.selectedCategory, parseInt(el.dataset.value));
+      break;
+    case 'start-chapter-all':
+      startQuiz('category', App.selectedCategory);
+      break;
     case 'session-review': startQuiz('session-review');              break;
 
     case 'answer':
