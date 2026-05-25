@@ -7,6 +7,7 @@ const App = {
   currentIndex: 0,
   selectedAnswer: null,
   sessionResults: [],
+  randomCount: 10,
 };
 
 // ── STORAGE ────────────────────────────────────────────────────────────
@@ -88,7 +89,7 @@ function startQuiz(mode, category) {
       qs = QUESTIONS.filter(q => q.category === category);
       break;
     case 'random':
-      qs = shuffleArray(QUESTIONS).slice(0, 10);
+      qs = shuffleArray(QUESTIONS).slice(0, App.randomCount);
       break;
     case 'review':
       qs = QUESTIONS.filter(q => {
@@ -165,11 +166,12 @@ function go(screen) {
 // ── RENDER ─────────────────────────────────────────────────────────────
 function render() {
   const fns = {
-    home:       renderHome,
-    categories: renderCategories,
-    quiz:       renderQuiz,
-    result:     renderResult,
-    stats:      renderStats,
+    home:           renderHome,
+    categories:     renderCategories,
+    'random-count': renderRandomCount,
+    quiz:           renderQuiz,
+    result:         renderResult,
+    stats:          renderStats,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -222,7 +224,7 @@ function renderHome() {
         <button class="menu-btn" data-action="start-random">
           <span class="btn-icon">🎲</span>
           <span class="btn-label">ランダムテスト</span>
-          <span class="btn-sub">全分野から10問</span>
+          <span class="btn-sub">10・20・30問</span>
         </button>
         <button class="menu-btn" data-action="start-review"
           style="${!hasWrong ? 'opacity:0.45;pointer-events:none' : ''}">
@@ -285,6 +287,35 @@ function renderCategories() {
       <div class="header-title">分野を選ぶ</div>
     </div>
     <div class="cat-list">${cards}</div>
+  </div>`;
+}
+
+// ── RANDOM COUNT SELECTION ─────────────────────────────────────────────
+function renderRandomCount() {
+  const options = [
+    { n: 10, label: '10問', sub: '手軽にサクッと' },
+    { n: 20, label: '20問', sub: 'バランスよく練習' },
+    { n: 30, label: '30問', sub: 'しっかり本番対策' },
+  ];
+
+  const cards = options.map(o => `
+    <button class="count-card" data-action="start-random-count" data-value="${o.n}">
+      <span class="count-num">${o.label}</span>
+      <span class="count-sub">${o.sub}</span>
+    </button>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">ランダムテスト</div>
+    </div>
+    <div class="count-select-body">
+      <div class="count-select-label">何問解きますか？</div>
+      <div class="count-select-grid">${cards}</div>
+    </div>
   </div>`;
 }
 
@@ -605,7 +636,11 @@ document.getElementById('app').addEventListener('click', e => {
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
 
-    case 'start-random':   startQuiz('random');                      break;
+    case 'start-random':        go('random-count');                   break;
+    case 'start-random-count':
+      App.randomCount = parseInt(el.dataset.value);
+      startQuiz('random');
+      break;
     case 'start-review':   startQuiz('review');                      break;
     case 'start-bookmark': startQuiz('bookmark');                    break;
     case 'start-category': startQuiz('category', el.dataset.value);  break;
