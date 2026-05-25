@@ -10,13 +10,14 @@
       1. ファイル存在確認
       2. ファイルごとの id 数カウント
       3. 全ファイル横断 id 重複チェック
-      4. question 存在数カウント
-      5. options（choices）存在数カウント
-      6. correct（answer）存在数カウント
-      7. explanation 存在数カウント
-      8. verified 存在数カウント
+      4. question 存在数カウント・空文字チェック
+      5. options 存在数カウント・選択肢数/空文字/重複チェック
+      6. correct 存在数カウント・値範囲チェック（整数 0〜3）
+      7. explanation 存在数カウント・空文字チェック
+      8. verified 存在数カウント・boolean 値チェック（新形式ID必須）
       9. カテゴリ名の出現数集計
      10. 総問題数表示
+     11. 新形式ID（TK-YYYY-NNNN）の形式チェック
 
     ID は文字列として扱います（parseInt 禁止）。
     問題データの自動修正は行いません。検出と報告のみ。
@@ -165,8 +166,8 @@ foreach ($fileName in $TargetFiles) {
     Write-Host ("    id 数 (合計)          : {0,3}  (TK-形式: {1}  旧形式: {2})" `
                 -f $fileIds.Count, $newIdCnt, $oldIdCnt) -ForegroundColor White
     Write-Host ("    question 数           : {0,3}" -f $qCount)   -ForegroundColor White
-    Write-Host ("    options 数（choices） : {0,3}" -f $optCount) -ForegroundColor White
-    Write-Host ("    correct 数（answer）  : {0,3}" -f $corCount) -ForegroundColor White
+    Write-Host ("    options 数            : {0,3}" -f $optCount) -ForegroundColor White
+    Write-Host ("    correct 数            : {0,3}" -f $corCount) -ForegroundColor White
     Write-Host ("    explanation 数        : {0,3}" -f $expCount) -ForegroundColor White
     Write-Host ("    verified 数           : {0,3}  (TK-形式 {1} 問が期待値)" `
                 -f $verCount, $newIdCnt) -ForegroundColor White
@@ -179,12 +180,90 @@ foreach ($fileName in $TargetFiles) {
     if ($corCount -ne $base) { Add-Error "$fileName : id 数($base) と correct 数($corCount) が一致しません" }
     if ($expCount -ne $base) { Add-Error "$fileName : id 数($base) と explanation 数($expCount) が一致しません" }
 
-    # verified は TK-形式ID 問にのみ必須
+    # verified は TK-形式ID 問にのみ必須（不足はエラー）
     if ($verCount -lt $newIdCnt) {
-        Add-Warning "$fileName : verified 数($verCount) が TK-形式ID 数($newIdCnt) より少ない可能性があります"
+        Add-Error "$fileName : verified 数($verCount) が TK-形式ID 数($newIdCnt) より少ない（新形式IDには verified が必須）"
     }
     if ($oldIdCnt -gt 0) {
         Write-Host ("    ※ 旧形式ID {0} 問には verified なし（仕様通り）" -f $oldIdCnt) -ForegroundColor DarkGray
+    }
+
+    # ── 新形式ID 形式チェック（^TK-\d{4}-\d{4}$ 以外はエラー）
+    foreach ($idVal in $fileIds) {
+        if ($idVal -match '^TK') {
+            if ($idVal -notmatch '^TK-\d{4}-\d{4}$') {
+                Add-Error "$fileName : 新形式IDの形式が不正です: '$idVal' (TK-YYYY-NNNN 形式であるべき)"
+            }
+        }
+    }
+
+    # ── options 値チェック（選択肢数 / 空文字 / 重複）
+    $optBlocks = [System.Text.RegularExpressions.Regex]::Matches(
+                     $clean, 'options\s*:\s*\[([\s\S]*?)\]')
+    $optBlockIdx = 0
+    foreach ($blk in $optBlocks) {
+        $optBlockIdx++
+        $blkContent = $blk.Groups[1].Value
+        $dqItems = [System.Text.RegularExpressions.Regex]::Matches($blkContent, '"([^"]*)"')
+        $sqItems = [System.Text.RegularExpressions.Regex]::Matches($blkContent, "'([^']*)'")
+        $allOptItems = [System.Collections.Generic.List[string]]::new()
+        foreach ($m in $dqItems) { $allOptItems.Add($m.Groups[1].Value) }
+        foreach ($m in $sqItems) { $allOptItems.Add($m.Groups[1].Value) }
+
+        if ($allOptItems.Count -ne 4) {
+            Add-Error "$fileName : options[$optBlockIdx] の選択肢が $($allOptItems.Count) 個です（4個であるべき）"
+        }
+        $emptyFound = $false
+        foreach ($item in $allOptItems) {
+            if ([string]::IsNullOrWhiteSpace($item)) { $emptyFound = $true; break }
+        }
+        if ($emptyFound) {
+            Add-Error "$fileName : options[$optBlockIdx] に空文字または空白のみの選択肢があります"
+        }
+        $uniqueItems = $allOptItems | Select-Object -Unique
+        if ($uniqueItems.Count -ne $allOptItems.Count) {
+            Add-Error "$fileName : options[$optBlockIdx] に重複した選択肢があります"
+        }
+    }
+
+    # ── correct 値チェック（0〜3 の整数であるべき）
+    $correctValMatches = [System.Text.RegularExpressions.Regex]::Matches(
+                             $clean, '(?m)^\s+correct\s*:\s*(.+)')
+    foreach ($m in $correctValMatches) {
+        $val = $m.Groups[1].Value.Trim() -replace '//.*$', ''
+        $val = $val.TrimEnd(',').Trim()
+        if ($val -notmatch '^[0-3]$') {
+            Add-Error "$fileName : correct の値が無効です: '$val' （整数 0, 1, 2, 3 のいずれかであるべき）"
+        }
+    }
+
+    # ── question / explanation 空文字チェック
+    foreach ($fld in @('question', 'explanation')) {
+        $patternDQ = '(?m)^\s+' + $fld + '\s*:\s*"([^"]*)"'
+        $patternSQ = "(?m)^\s+" + $fld + "\s*:\s*'([^']*)'"
+        $fldDQMatches = [System.Text.RegularExpressions.Regex]::Matches($clean, $patternDQ)
+        $fldSQMatches = [System.Text.RegularExpressions.Regex]::Matches($clean, $patternSQ)
+        foreach ($m in $fldDQMatches) {
+            if ([string]::IsNullOrWhiteSpace($m.Groups[1].Value)) {
+                Add-Error "$fileName : $fld が空文字または空白のみです"
+            }
+        }
+        foreach ($m in $fldSQMatches) {
+            if ([string]::IsNullOrWhiteSpace($m.Groups[1].Value)) {
+                Add-Error "$fileName : $fld が空文字または空白のみです"
+            }
+        }
+    }
+
+    # ── verified 値チェック（boolean の true / false であるべき）
+    $verifiedValMatches = [System.Text.RegularExpressions.Regex]::Matches(
+                              $clean, '(?m)^\s+verified\s*:\s*(.+)')
+    foreach ($m in $verifiedValMatches) {
+        $val = $m.Groups[1].Value.Trim() -replace '//.*$', ''
+        $val = $val.TrimEnd(',').Trim()
+        if ($val -notmatch '^(true|false)$') {
+            Add-Error "$fileName : verified の値が boolean ではありません: '$val' （true または false であるべき）"
+        }
     }
 }
 Write-Host ""
