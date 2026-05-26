@@ -873,3 +873,46 @@ html, body {
 .empty-icon  { font-size: 64px; margin-bottom: 14px; }
 .empty-title { font-size: 18px; font-weight: 800; color: var(--text-mid); margin-bottom: 8px; }
 .empty-text  { font-size: 14px; line-height: 1.75; }
+
+/* ── Phase 6: Today's 5 Questions ── */
+.stats-bar-sm {
+  margin-top: 10px;
+  background: rgba(255,255,255,0.10);
+}
+.stats-bar-sm .stat-value { font-size: 20px; }
+
+.menu-btn.daily {
+  background: linear-gradient(140deg, #92400E, #D97706);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.40);
+  flex-direction: row;
+  justify-content: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 18px 24px;
+  margin-bottom: 12px;
+}
+.menu-btn.daily .btn-icon  { font-size: 28px; }
+.menu-btn.daily .btn-label { color: var(--white); font-size: 18px; }
+.menu-btn.daily .btn-sub   { color: rgba(255,255,255,0.82); }
+
+.menu-btn.daily.daily-done {
+  background: linear-gradient(140deg, var(--g700), var(--g500));
+  box-shadow: 0 4px 16px rgba(64,145,108,0.30);
+}
+
+.daily-complete-banner {
+  background: rgba(255,255,255,0.20);
+  border: 2px solid rgba(255,255,255,0.45);
+  border-radius: var(--r-md);
+  padding: 14px 20px;
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 20px;
+  display: block;
+}
+.daily-complete-sub {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 4px;
+}

@@ -38,6 +38,7 @@ const Store = {
     h.lastAt = Date.now();
     data.history[qid] = h;
     this.save(data);
+    this.recordActiveDay();
   },
 
   toggleBookmark(qid) {
@@ -56,6 +57,55 @@ const Store = {
   },
 
   reset() { this.save({}); },
+
+  todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  },
+
+  recordActiveDay() {
+    const data = this.load();
+    const today = this.todayStr();
+    if (!data.activeDays) data.activeDays = [];
+    if (!data.activeDays.includes(today)) {
+      data.activeDays.push(today);
+      this.save(data);
+    }
+  },
+
+  todayCount() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const hist = this.history();
+    return Object.values(hist).filter(h => h.lastAt >= start.getTime()).length;
+  },
+
+  streak() {
+    const data = this.load();
+    const days = (data.activeDays || []).slice().sort();
+    if (days.length === 0) return 0;
+    const today = this.todayStr();
+    const check = new Date();
+    if (!days.includes(today)) check.setDate(check.getDate() - 1);
+    let count = 0;
+    while (true) {
+      const ds = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+      if (!days.includes(ds)) break;
+      count++;
+      check.setDate(check.getDate() - 1);
+    }
+    return count;
+  },
+
+  isDailyCompleted() {
+    return this.load().dailyCompleted === this.todayStr();
+  },
+
+  markDailyCompleted() {
+    const data = this.load();
+    data.dailyCompleted = this.todayStr();
+    this.save(data);
+  },
 };
 
 // ── UTILITIES ──────────────────────────────────────────────────────────
@@ -108,6 +158,23 @@ function startQuiz(mode, category, chapterStart) {
     case 'bookmark':
       qs = QUESTIONS.filter(q => hist[q.id] && hist[q.id].bookmarked);
       break;
+    case 'daily': {
+      const DAILY_SIZE = 5;
+      const unanswered = shuffleArray(QUESTIONS.filter(q => !hist[q.id] || hist[q.id].attempts === 0));
+      const wrong      = shuffleArray(QUESTIONS.filter(q => {
+        const h = hist[q.id];
+        return h && h.attempts > 0 && h.correct < h.attempts;
+      }));
+      let pool = unanswered;
+      if (pool.length < DAILY_SIZE) {
+        pool = pool.concat(wrong.filter(q => !pool.includes(q)));
+      }
+      if (pool.length < DAILY_SIZE) {
+        pool = pool.concat(shuffleArray(QUESTIONS.filter(q => !pool.includes(q))));
+      }
+      qs = pool.slice(0, DAILY_SIZE);
+      break;
+    }
     case 'session-review': {
       const wrongIds = App.sessionResults.filter(r => !r.correct).map(r => r.qid);
       qs = QUESTIONS.filter(q => wrongIds.includes(q.id));
@@ -184,13 +251,16 @@ function render() {
 
 // ── HOME ───────────────────────────────────────────────────────────────
 function renderHome() {
-  const hist  = Store.history();
-  const vals  = Object.values(hist);
-  const total = vals.reduce((s, h) => s + h.attempts, 0);
-  const corr  = vals.reduce((s, h) => s + h.correct,  0);
-  const rate  = total > 0 ? Math.round(corr / total * 100) : 0;
-  const done  = vals.filter(h => h.attempts > 0).length;
-  const bkCnt = vals.filter(h => h.bookmarked).length;
+  const hist       = Store.history();
+  const vals       = Object.values(hist);
+  const total      = vals.reduce((s, h) => s + h.attempts, 0);
+  const corr       = vals.reduce((s, h) => s + h.correct,  0);
+  const rate       = total > 0 ? Math.round(corr / total * 100) : 0;
+  const done       = vals.filter(h => h.attempts > 0).length;
+  const bkCnt      = vals.filter(h => h.bookmarked).length;
+  const todayCount = Store.todayCount();
+  const streakDays = Store.streak();
+  const isDone     = Store.isDailyCompleted();
   const hasWrong = QUESTIONS.some(q => {
     const h = hist[q.id];
     return h && h.attempts > 0 && h.correct < h.attempts;
@@ -216,10 +286,25 @@ function renderHome() {
           <div class="stat-label">正答率</div>
         </div>
       </div>
+      <div class="stats-bar stats-bar-sm">
+        <div class="stat-item">
+          <div class="stat-value">${todayCount}</div>
+          <div class="stat-label">今日の学習</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">${streakDays}日</div>
+          <div class="stat-label">連続学習</div>
+        </div>
+      </div>
     </div>
 
     <div class="menu-section">
       <div class="section-label">学習メニュー</div>
+      <button class="menu-btn daily${isDone ? ' daily-done' : ''}" data-action="start-daily">
+        <span class="btn-icon">${isDone ? '✅' : '🌟'}</span>
+        <span class="btn-label">${isDone ? '今日の5問 完了！' : '今日の5問'}</span>
+        <span class="btn-sub">${isDone ? 'また明日！' : '毎日5問で継続力UP'}</span>
+      </button>
       <div class="menu-grid">
         <button class="menu-btn primary" data-action="go-categories">
           <span class="btn-icon">📚</span>
@@ -438,6 +523,7 @@ function renderQuiz() {
     review: '間違い復習',
     bookmark: '付箋問題',
     'session-review': '復習',
+    daily: '今日の5問',
   };
 
   return `
@@ -504,6 +590,8 @@ function renderResult() {
   const rate    = total > 0 ? Math.round(correct / total * 100) : 0;
   const msg     = rate >= 80 ? '素晴らしい！' : rate >= 60 ? 'よくできました！' : rate >= 40 ? 'もう少し！' : '復習しよう！';
 
+  if (App.quizMode === 'daily') Store.markDailyCompleted();
+
   const wrongQids = App.sessionResults.filter(r => !r.correct).map(r => r.qid);
   const wrongQs   = QUESTIONS.filter(q => wrongQids.includes(q.id));
 
@@ -525,9 +613,16 @@ function renderResult() {
     🎉 全問正解！
   </div>`;
 
+  const dailyBanner = App.quizMode === 'daily' ? `
+    <div class="daily-complete-banner">
+      🎉 今日の5問 完了！
+      <div class="daily-complete-sub">明日もまた挑戦しよう！</div>
+    </div>` : '';
+
   return `
   <div class="screen">
     <div class="result-hero">
+      ${dailyBanner}
       ${scoreDonut(rate)}
       <div class="result-sub">${total}問中 ${correct}問正解　${msg}</div>
       <div class="result-chips">
@@ -700,6 +795,7 @@ document.getElementById('app').addEventListener('click', e => {
       App.randomCount = parseInt(el.dataset.value);
       startQuiz('random');
       break;
+    case 'start-daily':    startQuiz('daily');                        break;
     case 'start-review':   startQuiz('review');                      break;
     case 'start-bookmark': startQuiz('bookmark');                    break;
     case 'start-category': {
