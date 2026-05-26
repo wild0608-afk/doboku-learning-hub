@@ -244,6 +244,7 @@ function render() {
     quiz:                renderQuiz,
     result:              renderResult,
     stats:               renderStats,
+    guide:               renderGuide,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -332,6 +333,10 @@ function renderHome() {
       <button class="menu-btn full" data-action="go-stats">
         <span class="btn-icon">📊</span>
         <span class="btn-label">学習記録を見る</span>
+      </button>
+      <button class="menu-btn full" data-action="go-guide">
+        <span class="btn-icon">📘</span>
+        <span class="btn-label">アプリの使い方</span>
       </button>
     </div>
   </div>`;
@@ -780,6 +785,66 @@ function renderStats() {
   </div>`;
 }
 
+// ── GUIDE ──────────────────────────────────────────────────────────────
+function renderGuide() {
+  const items = [
+    {
+      icon: '🌟',
+      title: '今日の5問',
+      body: '毎日5問を出題します。未学習の問題を優先し、次に間違えた問題、それ以外はランダムで補充します。毎日続けることで連続学習日数が伸びます。',
+    },
+    {
+      icon: '📚',
+      title: '分野別学習',
+      body: '権利関係・宅建業法・法令上の制限・税その他の4分野から選んで学習できます。各分野は25問ずつのチャプターに分かれており、進捗を確認しながら進められます。',
+    },
+    {
+      icon: '🎲',
+      title: 'ランダムテスト',
+      body: '全300問からランダムに10・20・30問を出題します。分野を横断した本番に近い練習ができます。',
+    },
+    {
+      icon: '🔄',
+      title: '間違い復習',
+      body: '過去に1度でも間違えた問題を、誤答数の多い順に出題します。苦手な問題を集中的に克服できます。',
+    },
+    {
+      icon: '🔖',
+      title: '付箋問題',
+      body: '問題画面の ☆ をタップすると付箋を付けられます。気になった問題や重要問題をまとめて復習するのに使います。',
+    },
+    {
+      icon: '📊',
+      title: '学習記録',
+      body: '全体の正答率・総回答数・苦手問題TOP5・分野別成績を確認できます。学習の進み具合を把握して、優先的に取り組む分野を見つけましょう。',
+    },
+    {
+      icon: '💡',
+      title: '学習のコツ',
+      body: 'まず「今日の5問」を毎日続けることが最優先です。連続学習日数を積み重ねることが合格への近道です。慣れてきたら分野別学習やランダムテストで実力を確認しましょう。',
+    },
+  ];
+
+  const cards = items.map(item => `
+    <div class="stats-card">
+      <div class="stats-card-title">${item.icon} ${escapeHTML(item.title)}</div>
+      <div style="font-size:14px;line-height:1.85;color:var(--text-mid)">${escapeHTML(item.body)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">アプリの使い方</div>
+    </div>
+    <div class="stats-body">
+      ${cards}
+    </div>
+  </div>`;
+}
+
 // ── EVENTS ─────────────────────────────────────────────────────────────
 document.getElementById('app').addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
@@ -789,6 +854,7 @@ document.getElementById('app').addEventListener('click', e => {
     case 'go-home':        go('home');        break;
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
+    case 'go-guide':       go('guide');       break;
 
     case 'start-random':        go('random-count');                   break;
     case 'start-random-count':
