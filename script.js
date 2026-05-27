@@ -262,10 +262,19 @@ function renderHome() {
   const todayCount = Store.todayCount();
   const streakDays = Store.streak();
   const isDone     = Store.isDailyCompleted();
-  const hasWrong = QUESTIONS.some(q => {
+  const wrongCnt = QUESTIONS.filter(q => {
     const h = hist[q.id];
     return h && h.attempts > 0 && h.correct < h.attempts;
-  });
+  }).length;
+  const catStats = CATEGORIES.map(cat => {
+    const qs  = QUESTIONS.filter(q => q.category === cat);
+    const att = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+    const cr  = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+    return { cat, att, rate: att > 0 ? Math.round(cr / att * 100) : null };
+  }).filter(s => s.att > 0);
+  const worstCat = catStats.length > 0
+    ? catStats.sort((a, b) => a.rate - b.rate)[0]
+    : null;
 
   return `
   <div class="screen">
@@ -299,6 +308,26 @@ function renderHome() {
       </div>
     </div>
 
+    <div class="stats-card" style="margin:0 16px 12px">
+      <div class="stats-card-title">⚠️ 弱点サマリー</div>
+      <div class="stats-grid">
+        <div class="stats-metric${wrongCnt > 0 ? ' accent' : ''}">
+          <div class="stats-metric-val">${wrongCnt}</div>
+          <div class="stats-metric-label">苦手問題数</div>
+        </div>
+        <div class="stats-metric">
+          <div class="stats-metric-val">${rate}%</div>
+          <div class="stats-metric-label">全体正答率</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text-mid)">
+        最も苦手: <strong>${worstCat ? worstCat.cat + '（' + worstCat.rate + '%）' : 'まだ分析中'}</strong>
+      </div>
+      <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? '#E05252' : '#52B788'}">
+        ${wrongCnt > 0 ? '⚠️ 要復習あり' : '✅ 順調です！'}
+      </div>
+    </div>
+
     <div class="menu-section">
       <div class="section-label">学習メニュー</div>
       <button class="menu-btn daily${isDone ? ' daily-done' : ''}" data-action="start-daily">
@@ -318,7 +347,7 @@ function renderHome() {
           <span class="btn-sub">10・20・30問</span>
         </button>
         <button class="menu-btn" data-action="start-review"
-          style="${!hasWrong ? 'opacity:0.45;pointer-events:none' : ''}">
+          style="${wrongCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
           <span class="btn-icon">🔄</span>
           <span class="btn-label">間違い復習</span>
           <span class="btn-sub">苦手問題を克服</span>
