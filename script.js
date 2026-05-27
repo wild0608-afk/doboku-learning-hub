@@ -326,6 +326,12 @@ function renderHome() {
       <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? '#E05252' : '#52B788'}">
         ${wrongCnt > 0 ? '⚠️ 要復習あり' : '✅ 順調です！'}
       </div>
+      ${wrongCnt > 0 ? `
+      <button class="menu-btn full" data-action="start-review"
+        style="margin-top:10px;min-height:48px;padding:12px 20px">
+        <span class="btn-icon" style="font-size:20px">🔄</span>
+        <span class="btn-label" style="font-size:14px">今すぐ復習する（${wrongCnt}問）</span>
+      </button>` : ''}
     </div>
 
     <div class="menu-section">
@@ -350,7 +356,7 @@ function renderHome() {
           style="${wrongCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
           <span class="btn-icon">🔄</span>
           <span class="btn-label">間違い復習</span>
-          <span class="btn-sub">苦手問題を克服</span>
+          <span class="btn-sub">${wrongCnt > 0 ? wrongCnt + '問' : '対象なし'}</span>
         </button>
         <button class="menu-btn" data-action="start-bookmark"
           style="${bkCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
