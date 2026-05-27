@@ -286,6 +286,18 @@ function renderHome() {
   const planAction = wrongCnt > 0 ? 'start-review' : 'start-daily';
   const planIcon   = wrongCnt > 0 ? '🔄' : (isDone ? '✅' : '🌟');
 
+  const undone     = QUESTIONS.length - done;
+  const paceNeed   = daysLeft > 0 && undone > 0 ? Math.ceil(undone / daysLeft) : 0;
+  const paceStatus = undone === 0
+    ? '✅ 全問学習済み！復習を続けよう'
+    : todayCount >= paceNeed && paceNeed > 0
+      ? '✅ 今日のペース達成！'
+      : paceNeed > 0
+        ? `📌 今日あと ${paceNeed - todayCount} 問でペース達成`
+        : '📅 試験日です！全力で！';
+  const paceColor  = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed)
+    ? 'var(--g600)' : 'var(--text-mid)';
+
   return `
   <div class="screen">
     <div class="home-hero">
@@ -360,6 +372,11 @@ function renderHome() {
           <div class="stats-metric-val">35問</div>
           <div class="stats-metric-label">今週の目標</div>
         </div>
+      </div>
+      <div style="margin:8px 0 10px;padding:10px 12px;background:var(--g50);border-radius:var(--r-sm);font-size:13px;color:var(--text-mid);line-height:1.85">
+        <div>未学習 <strong style="color:var(--text)">${undone}問</strong></div>
+        ${undone > 0 && daysLeft > 0 ? `<div>残り${daysLeft}日 → 1日<strong style="color:var(--text)">${paceNeed}問</strong>ペースで完走</div>` : ''}
+        <div style="font-weight:700;color:${paceColor}">${paceStatus}</div>
       </div>
       <button class="menu-btn full" data-action="${planAction}"
         style="min-height:48px;padding:12px 20px">
