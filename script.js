@@ -266,14 +266,16 @@ function renderHome() {
     const h = hist[q.id];
     return h && h.attempts > 0 && h.correct < h.attempts;
   }).length;
-  const catStats = CATEGORIES.map(cat => {
+  const CAT_ICONS = { '権利関係':'⚖️', '宅建業法':'🏢', '法令上の制限':'📋', '税・その他':'💴' };
+  const catAll = CATEGORIES.map(cat => {
     const qs  = QUESTIONS.filter(q => q.category === cat);
     const att = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
     const cr  = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
     return { cat, att, rate: att > 0 ? Math.round(cr / att * 100) : null };
-  }).filter(s => s.att > 0);
+  });
+  const catStats = catAll.filter(s => s.att > 0);
   const worstCat = catStats.length > 0
-    ? catStats.sort((a, b) => a.rate - b.rate)[0]
+    ? catStats.slice().sort((a, b) => a.rate - b.rate)[0]
     : null;
 
   // 宅建試験日（毎年10月第3日曜日。翌年更新時はここ1行を変更）
@@ -342,8 +344,31 @@ function renderHome() {
           <div class="stats-metric-label">全体正答率</div>
         </div>
       </div>
-      <div style="margin-top:8px;font-size:13px;color:var(--text-mid)">
-        最も苦手: <strong>${worstCat ? worstCat.cat + '（' + worstCat.rate + '%）' : 'まだ分析中'}</strong>
+      <div style="margin-top:10px">
+        ${catAll.map(s => {
+          const barColor = s.rate === null ? 'var(--border)'
+            : s.rate >= 70 ? 'var(--g400)'
+            : s.rate >= 50 ? '#F0B429'
+            : '#E05252';
+          const rateText = s.rate !== null ? s.rate + '%' : '─';
+          const sub = s.rate === null ? ''
+            : s.rate >= 70
+              ? `<span style="font-size:10px;color:var(--g600)">✓達成</span>`
+              : `<span style="font-size:10px;color:#E05252">目安まで${70 - s.rate}%</span>`;
+          return `
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:15px;flex-shrink:0">${CAT_ICONS[s.cat]}</span>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:var(--text-mid)">${s.cat}</span>
+                <span style="display:flex;gap:6px;align-items:center">${sub}<strong style="color:var(--text)">${rateText}</strong></span>
+              </div>
+              <div class="cat-bar-track">
+                <div class="cat-bar-fill" style="width:${s.rate ?? 0}%;background:${barColor}"></div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
       <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? '#E05252' : '#52B788'}">
         ${wrongCnt > 0 ? '⚠️ 要復習あり' : '✅ 順調です！'}
