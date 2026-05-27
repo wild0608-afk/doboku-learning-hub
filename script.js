@@ -277,7 +277,7 @@ function renderHome() {
     : null;
 
   // 宅建試験日（毎年10月第3日曜日。翌年更新時はここ1行を変更）
-  const EXAM_DATE = new Date('2026-10-19');
+  const EXAM_DATE = new Date('2026-10-18');
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
   const planMsg   = wrongCnt > 0
@@ -349,7 +349,7 @@ function renderHome() {
       <div style="text-align:center;margin-bottom:12px">
         <span style="font-size:36px;font-weight:900;color:var(--g600)">${daysLeft}日</span>
         <span style="font-size:13px;color:var(--text-sub);margin-left:6px">試験まで</span>
-        <div style="font-size:11px;color:var(--text-sub);margin-top:2px">宅建試験日：2026/10/19</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-top:2px">宅建試験日：2026/10/18</div>
       </div>
       <div class="stats-grid" style="margin-bottom:10px">
         <div class="stats-metric">
