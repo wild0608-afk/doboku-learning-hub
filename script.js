@@ -276,6 +276,16 @@ function renderHome() {
     ? catStats.sort((a, b) => a.rate - b.rate)[0]
     : null;
 
+  // 宅建試験日（毎年10月第3日曜日。翌年更新時はここ1行を変更）
+  const EXAM_DATE = new Date('2026-10-19');
+  const _today    = new Date(); _today.setHours(0, 0, 0, 0);
+  const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
+  const planMsg   = wrongCnt > 0
+    ? `まず苦手 ${wrongCnt} 問を復習しよう`
+    : (isDone ? '今日の5問は完了！明日も続けよう' : '今日の5問から始めよう');
+  const planAction = wrongCnt > 0 ? 'start-review' : 'start-daily';
+  const planIcon   = wrongCnt > 0 ? '🔄' : (isDone ? '✅' : '🌟');
+
   return `
   <div class="screen">
     <div class="home-hero">
@@ -332,6 +342,30 @@ function renderHome() {
         <span class="btn-icon" style="font-size:20px">🔄</span>
         <span class="btn-label" style="font-size:14px">今すぐ復習する（${wrongCnt}問）</span>
       </button>` : ''}
+    </div>
+
+    <div class="stats-card" style="margin:0 16px 12px">
+      <div class="stats-card-title">🗓️ 試験日逆算プラン</div>
+      <div style="text-align:center;margin-bottom:12px">
+        <span style="font-size:36px;font-weight:900;color:var(--g600)">${daysLeft}日</span>
+        <span style="font-size:13px;color:var(--text-sub);margin-left:6px">試験まで</span>
+        <div style="font-size:11px;color:var(--text-sub);margin-top:2px">宅建試験日：2026/10/19</div>
+      </div>
+      <div class="stats-grid" style="margin-bottom:10px">
+        <div class="stats-metric">
+          <div class="stats-metric-val">5問</div>
+          <div class="stats-metric-label">今日の目標</div>
+        </div>
+        <div class="stats-metric">
+          <div class="stats-metric-val">35問</div>
+          <div class="stats-metric-label">今週の目標</div>
+        </div>
+      </div>
+      <button class="menu-btn full" data-action="${planAction}"
+        style="min-height:48px;padding:12px 20px">
+        <span class="btn-icon" style="font-size:20px">${planIcon}</span>
+        <span class="btn-label" style="font-size:14px">${planMsg}</span>
+      </button>
     </div>
 
     <div class="menu-section">
