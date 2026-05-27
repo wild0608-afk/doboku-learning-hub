@@ -916,3 +916,11 @@ html, body {
   opacity: 0.85;
   margin-top: 4px;
 }
+
+/* ── Phase 6-D: Continuity Calendar ── */
+.cal-week  { display:flex; justify-content:space-around; margin:4px 0; }
+.cal-day   { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.cal-label { font-size:11px; font-weight:700; color:var(--text-sub); }
+.cal-dot   { width:30px; height:30px; border-radius:50%; background:var(--border); }
+.cal-dot.done  { background:var(--g400); }
+.cal-dot.today { box-shadow:0 0 0 2.5px var(--g600); }

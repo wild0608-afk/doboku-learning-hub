@@ -694,6 +694,18 @@ function renderStats() {
   const done   = vals.filter(h => h.attempts > 0).length;
   const undone = Math.max(0, QUESTIONS.length - done);
 
+  const activeDays = Store.load().activeDays || [];
+  const streakDays = Store.streak();
+  const todayStr   = Store.todayStr();
+  const DAY_NAMES  = ['日','月','火','水','木','金','土'];
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return { label: DAY_NAMES[d.getDay()], done: activeDays.includes(ds), isToday: ds === todayStr };
+  });
+  const weekDone = week.filter(d => d.done).length;
+
   const icons = {
     '権利関係': '⚖️', '宅建業法': '🏢',
     '法令上の制限': '📋', '税・その他': '💴',
@@ -771,6 +783,24 @@ function renderStats() {
       <div class="header-title">学習記録</div>
     </div>
     <div class="stats-body">
+      <div class="stats-card">
+        <div class="stats-card-title">📅 継続記録</div>
+        <div style="text-align:center;margin-bottom:14px">
+          <span style="font-size:36px;font-weight:900;color:var(--g600)">${streakDays}日</span>
+          <span style="font-size:13px;color:var(--text-sub);margin-left:6px">連続学習中</span>
+        </div>
+        <div class="cal-week">
+          ${week.map(d => `
+          <div class="cal-day">
+            <div class="cal-label">${d.label}</div>
+            <div class="cal-dot${d.done ? ' done' : ''}${d.isToday ? ' today' : ''}"></div>
+          </div>`).join('')}
+        </div>
+        <div style="text-align:center;margin-top:10px;font-size:13px;
+          color:var(--text-mid);font-weight:700">
+          直近7日で ${weekDone} 日学習
+        </div>
+      </div>
       <div class="stats-card">
         <div class="stats-card-title">📊 全体成績</div>
         <div class="stats-grid">
