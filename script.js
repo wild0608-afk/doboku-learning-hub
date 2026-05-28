@@ -1,5 +1,28 @@
 const CHAPTER_SIZE = 25;
 
+const CHAPTER_LABELS = {
+  '宅建業法': [
+    '免許・宅建士・媒介・重要事項説明',
+    '手付金・自ら売主制限・事務所規制',
+    '業務規制・監督処分・その他',
+  ],
+  '権利関係': [
+    '民法総則・物権・担保物権・債権',
+    '意思表示・代理・相続・不法行為',
+    '借地借家・共有・保証・その他',
+  ],
+  '法令上の制限': [
+    '都市計画法・開発許可・建築基準法基礎',
+    '建築基準法詳細・農地法・区画整理',
+    '国土利用計画法・盛土規制・各種制限',
+  ],
+  '税・その他': [
+    '不動産税制（取得税・固定資産税・印紙税）',
+    '譲渡所得・鑑定評価・支援機構・景表法',
+    '住宅ローン控除・相続税・土地建物知識',
+  ],
+};
+
 // ── STATE ──────────────────────────────────────────────────────────────
 const App = {
   screen: 'home',
@@ -518,10 +541,13 @@ function renderCategoryChapters() {
     const chDone = chQs.filter(q => hist[q.id]?.attempts > 0).length;
     const chRate = chAtt > 0 ? Math.round(chCr / chAtt * 100) + '%' : '─';
     const chNum  = Math.floor(start / CHAPTER_SIZE) + 1;
+    const chLabel = (CHAPTER_LABELS[cat] && CHAPTER_LABELS[cat][chNum - 1])
+      ? CHAPTER_LABELS[cat][chNum - 1]
+      : `Chapter ${chNum}`;
     chapterCards.push(`
     <button class="chapter-card" data-action="start-chapter" data-value="${start}">
       <div class="chapter-left">
-        <div class="chapter-title">Chapter ${chNum}</div>
+        <div class="chapter-title">${chLabel}</div>
         <div class="chapter-meta">${chQs.length}問 ・ 学習済み${chDone}問</div>
       </div>
       <div class="chapter-rate">${chRate}</div>
