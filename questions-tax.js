@@ -184,8 +184,8 @@ const QUESTIONS_TAX = [
     explanation: "住宅ローン控除を受けるには、①返済期間（償還期間）が10年以上であること、②取得した日から6ヶ月以内に居住の用に供すること、③特定の金融機関からの借入れであることなど、複数の要件を満たす必要があります。また、合計所得金額が2,000万円以下であることも条件の一つです。すべての住宅ローンが自動的に対象になるわけではありません。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
@@ -206,8 +206,8 @@ const QUESTIONS_TAX = [
     explanation: "贈与税（暦年課税）の基礎控除は「もらった人1人につき年間110万円」です。複数人から別々にもらっても、合計額から110万円を1回だけ差し引いて計算します。納税義務者は「もらった人」であり、法人から個人への贈与は所得税の対象となります。なお、相続時精算課税制度にも年110万円の控除がありますが、暦年課税とは別の制度ですので混同しないよう注意してください。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
@@ -470,8 +470,8 @@ const QUESTIONS_TAX = [
     explanation: "機構の証券化支援（買取型）の対象ローンは、申込人本人またはその親族が居住するための住宅取得資金（個人による取得）に限定されています。別荘・セカンドハウスや法人による社宅購入資金は対象外となります。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },

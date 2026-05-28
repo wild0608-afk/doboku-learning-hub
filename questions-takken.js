@@ -49,8 +49,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "破産者でも、復権を得れば欠格事由は解消し、直ちに免許を受けることができます。5年待つ必要はありません。また、法人の場合は、役員などに欠格事由に該当する者がいると、その法人も免許を受けられない点に注意が必要です。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
@@ -533,8 +533,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "買主が「自ら指定した自宅または勤務先」で申込みや契約を行った場合は、落ち着いて判断できる環境とみなされるため、クーリング・オフの適用対象外（解除できない）となります。なお、クーリング・オフによる契約解除の通知は、書面によって行う必要があります（口頭による解除の通知は無効です）。また、解除の効力は書面を発した時点（発信主義）で生じます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
@@ -874,8 +874,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "クーリング・オフの解除期間は、書面による告知を受けた日を1日目として数えて8日目まで（初日算入）です。「告知日の翌日から8日以内」ではなく「告知日から8日以内（告知日を1日目と数える）」が正しく、翌日起算では1日多くなるため誤りです。解除の意思表示は書面を発送した時点で効力が生じます。なお、書面による告知がない場合は、期間の制限なくいつでも申込みを撤回できます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },

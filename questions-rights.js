@@ -313,8 +313,8 @@ const QUESTIONS_RIGHTS = [
     explanation: "2020年の民法改正により、当事者双方に責任のない事由で建物が滅失した場合、買主Bは「代金の支払いを拒絶できる」のが現行ルールです（民法536条）。「建物をもらえないなら代金は払わなくてよい」と覚えてください。契約は自動的に無効になるわけではなく、双方に責任がないため損害賠償請求も認められません。BはAに契約解除を求めることもできます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
