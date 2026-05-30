@@ -196,6 +196,7 @@ function startQuiz(mode, category, chapterStart) {
     case 'category':
       qs = QUESTIONS.filter(q => q.category === category);
       if (chapterStart !== undefined) qs = qs.slice(chapterStart, chapterStart + CHAPTER_SIZE);
+      qs = shuffleArray(qs);
       break;
     case 'random':
       qs = shuffleArray(QUESTIONS).slice(0, App.randomCount);
@@ -268,6 +269,7 @@ function answerQuestion(idx) {
     Store.saveResume(App._resumeKey, {
       nextIndex:     App.currentIndex + 1,
       questionCount: App.quizQuestions.length,
+      questionIds:   App.quizQuestions.map(q => q.id),
       updatedAt:     Date.now(),
     });
   }
@@ -1106,11 +1108,14 @@ function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
     overlay.remove();
 
     if (btn.dataset.resume === 'continue') {
-      const catQs = QUESTIONS.filter(q => q.category === category);
-      const qs = chapterStart !== undefined
-        ? catQs.slice(chapterStart, chapterStart + CHAPTER_SIZE)
-        : catQs;
-      if (resumeData.nextIndex >= qs.length) {
+      // Restore shuffled order from saved questionIds
+      let qs = null;
+      if (resumeData.questionIds && resumeData.questionIds.length > 0) {
+        const restored = resumeData.questionIds.map(id => QUESTIONS.find(q => q.id === id));
+        if (restored.every(q => q !== undefined)) qs = restored;
+      }
+      // Fallback: questionIds missing/invalid or index out of range → fresh start
+      if (!qs || resumeData.nextIndex >= qs.length) {
         Store.clearResume(resumeKey);
         startQuiz('category', category, chapterStart);
         return;
