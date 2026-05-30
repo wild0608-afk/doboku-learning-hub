@@ -40,6 +40,8 @@ const App = {
   sessionResults: [],
   randomCount: 10,
   selectedCategory: null,
+  _resumeKey: null,
+  _chapterStart: undefined,
 };
 
 // ── STORAGE ────────────────────────────────────────────────────────────
@@ -135,6 +137,30 @@ const Store = {
     data.dailyCompleted = this.todayStr();
     this.save(data);
   },
+
+  resumeKey(category, chapterStart) {
+    return `${category}:${chapterStart !== undefined ? chapterStart : 'all'}`;
+  },
+
+  saveResume(key, data) {
+    const d = this.load();
+    if (!d.resumeSessions) d.resumeSessions = {};
+    d.resumeSessions[key] = data;
+    this.save(d);
+  },
+
+  loadResume(key) {
+    const d = this.load();
+    return (d.resumeSessions && d.resumeSessions[key]) || null;
+  },
+
+  clearResume(key) {
+    const d = this.load();
+    if (d.resumeSessions && d.resumeSessions[key]) {
+      delete d.resumeSessions[key];
+      this.save(d);
+    }
+  },
 };
 
 // ── UTILITIES ──────────────────────────────────────────────────────────
@@ -226,6 +252,8 @@ function startQuiz(mode, category, chapterStart) {
   App.currentIndex   = 0;
   App.selectedAnswer = null;
   App.sessionResults = [];
+  App._resumeKey     = mode === 'category' ? Store.resumeKey(category, chapterStart) : null;
+  App._chapterStart  = chapterStart;
   go('quiz');
 }
 
@@ -236,6 +264,13 @@ function answerQuestion(idx) {
   App.selectedAnswer = idx;
   App.sessionResults.push({ qid: q.id, correct: ok });
   Store.recordAnswer(q.id, ok);
+  if (App._resumeKey) {
+    Store.saveResume(App._resumeKey, {
+      nextIndex:     App.currentIndex + 1,
+      questionCount: App.quizQuestions.length,
+      updatedAt:     Date.now(),
+    });
+  }
   render();
   // スクロールでフィードバックを表示
   requestAnimationFrame(() => {
@@ -249,6 +284,10 @@ function nextQuestion() {
     App.currentIndex++;
     App.selectedAnswer = null;
   } else {
+    if (App._resumeKey) {
+      Store.clearResume(App._resumeKey);
+      App._resumeKey = null;
+    }
     go('result');
     return;
   }
@@ -1038,6 +1077,60 @@ function renderGuide() {
   </div>`;
 }
 
+// ── RESUME DIALOG ──────────────────────────────────────────────────────
+function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
+  const prev = document.getElementById('resume-dialog');
+  if (prev) prev.remove();
+
+  const answered = resumeData.nextIndex;
+  const total    = resumeData.questionCount;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'resume-dialog';
+  overlay.innerHTML = `
+    <div class="resume-card">
+      <div class="resume-title">途中から再開しますか？</div>
+      <div class="resume-body">${escapeHTML(String(answered))}問答えました（全${escapeHTML(String(total))}問）</div>
+      <div class="resume-btns">
+        <button class="resume-btn-sub" data-resume="restart">最初から解く</button>
+        <button class="resume-btn-primary" data-resume="continue">続きから解く</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) { overlay.remove(); return; }
+    const btn = e.target.closest('[data-resume]');
+    if (!btn) return;
+    overlay.remove();
+
+    if (btn.dataset.resume === 'continue') {
+      const catQs = QUESTIONS.filter(q => q.category === category);
+      const qs = chapterStart !== undefined
+        ? catQs.slice(chapterStart, chapterStart + CHAPTER_SIZE)
+        : catQs;
+      if (resumeData.nextIndex >= qs.length) {
+        Store.clearResume(resumeKey);
+        startQuiz('category', category, chapterStart);
+        return;
+      }
+      App.quizMode       = 'category';
+      App.quizCategory   = category;
+      App.quizQuestions  = qs;
+      App.currentIndex   = resumeData.nextIndex;
+      App.selectedAnswer = null;
+      App.sessionResults = [];
+      App._resumeKey     = resumeKey;
+      App._chapterStart  = chapterStart;
+      go('quiz');
+    } else {
+      Store.clearResume(resumeKey);
+      startQuiz('category', category, chapterStart);
+    }
+  });
+}
+
 // ── EVENTS ─────────────────────────────────────────────────────────────
 document.getElementById('app').addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
@@ -1064,12 +1157,31 @@ document.getElementById('app').addEventListener('click', e => {
       else startQuiz('category', App.selectedCategory);
       break;
     }
-    case 'start-chapter':
-      startQuiz('category', App.selectedCategory, parseInt(el.dataset.value));
+    case 'start-chapter': {
+      const cat   = App.selectedCategory;
+      const start = parseInt(el.dataset.value);
+      const rkey  = Store.resumeKey(cat, start);
+      const rd    = Store.loadResume(rkey);
+      if (rd && rd.nextIndex > 0 && rd.nextIndex < rd.questionCount) {
+        showResumeDialog(rkey, rd, cat, start);
+      } else {
+        if (rd) Store.clearResume(rkey);
+        startQuiz('category', cat, start);
+      }
       break;
-    case 'start-chapter-all':
-      startQuiz('category', App.selectedCategory);
+    }
+    case 'start-chapter-all': {
+      const cat  = App.selectedCategory;
+      const rkey = Store.resumeKey(cat, undefined);
+      const rd   = Store.loadResume(rkey);
+      if (rd && rd.nextIndex > 0 && rd.nextIndex < rd.questionCount) {
+        showResumeDialog(rkey, rd, cat, undefined);
+      } else {
+        if (rd) Store.clearResume(rkey);
+        startQuiz('category', cat);
+      }
       break;
+    }
     case 'session-review': startQuiz('session-review');              break;
 
     case 'answer':

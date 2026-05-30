@@ -924,3 +924,68 @@ html, body {
 .cal-dot   { width:30px; height:30px; border-radius:50%; background:var(--border); }
 .cal-dot.done  { background:var(--g400); }
 .cal-dot.today { box-shadow:0 0 0 2.5px var(--g600); }
+
+/* ── Phase 9-A: Resume Dialog ── */
+#resume-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 24px;
+}
+
+.resume-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resume-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.resume-body {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+.resume-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.resume-btn-primary {
+  background: var(--g700);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.resume-btn-sub {
+  background: transparent;
+  color: var(--text-mid);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
