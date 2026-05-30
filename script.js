@@ -552,11 +552,6 @@ function renderHome() {
 
     <div class="menu-section">
       <div class="section-label">学習メニュー</div>
-      <button class="menu-btn daily${isDone ? ' daily-done' : ''}" data-action="start-daily">
-        <span class="btn-icon">${isDone ? '✅' : '🌟'}</span>
-        <span class="btn-label">${isDone ? '今日の5問 完了！' : '今日の5問'}</span>
-        <span class="btn-sub">${isDone ? 'また明日！' : '毎日5問で継続力UP'}</span>
-      </button>
       <div class="menu-grid">
         <button class="menu-btn primary" data-action="go-categories">
           <span class="btn-icon">📚</span>
