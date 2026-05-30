@@ -925,6 +925,50 @@ html, body {
 .cal-dot.done  { background:var(--g400); }
 .cal-dot.today { box-shadow:0 0 0 2.5px var(--g600); }
 
+/* ── Phase 9-C: Exam Mode ── */
+.exam-alloc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+.exam-alloc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--g50);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.exam-timer-bar {
+  text-align: center;
+  padding: 5px 0;
+  font-size: 15px;
+  background: var(--g50);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+
+.exam-cat-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.exam-cat-row:last-child { border-bottom: none; }
+
+.exam-pass-badge {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 4px 0 10px;
+}
+.exam-pass-badge.pass { background: rgba(82,183,136,0.18); color: #2D6A4F; }
+.exam-pass-badge.fail { background: rgba(224,82,82,0.12);  color: #C0392B; }
+
 /* ── Phase 9-A: Resume Dialog ── */
 #resume-dialog {
   position: fixed;

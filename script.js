@@ -42,6 +42,9 @@ const App = {
   selectedCategory: null,
   _resumeKey: null,
   _chapterStart: undefined,
+  examTimerEnabled: false,
+  examTimerSeconds: 0,
+  _examTimerInterval: null,
 };
 
 // ── STORAGE ────────────────────────────────────────────────────────────
@@ -236,6 +239,20 @@ function startQuiz(mode, category, chapterStart) {
       qs = QUESTIONS.filter(q => wrongIds.includes(q.id));
       break;
     }
+    case 'exam': {
+      const EXAM_ALLOC = [
+        { cat: '宅建業法',    n: 20 },
+        { cat: '権利関係',    n: 14 },
+        { cat: '法令上の制限', n: 8  },
+        { cat: '税・その他',   n: 8  },
+      ];
+      qs = [];
+      for (const { cat, n } of EXAM_ALLOC) {
+        qs = qs.concat(shuffleArray(QUESTIONS.filter(q => q.category === cat)).slice(0, n));
+      }
+      qs = shuffleArray(qs);
+      break;
+    }
   }
 
   if (qs.length === 0) {
@@ -290,7 +307,8 @@ function nextQuestion() {
       Store.clearResume(App._resumeKey);
       App._resumeKey = null;
     }
-    go('result');
+    stopExamTimer();
+    go(App.quizMode === 'exam' ? 'exam-result' : 'result');
     return;
   }
   render();
@@ -311,8 +329,10 @@ function render() {
     categories:          renderCategories,
     'category-chapters': renderCategoryChapters,
     'random-count':      renderRandomCount,
+    'exam-setup':        renderExamSetup,
     quiz:                renderQuiz,
     result:              renderResult,
+    'exam-result':       renderExamResult,
     stats:               renderStats,
     guide:               renderGuide,
   };
@@ -511,6 +531,11 @@ function renderHome() {
           <span class="btn-sub">${bkCnt > 0 ? bkCnt + '問' : 'なし'}</span>
         </button>
       </div>
+      <button class="menu-btn full primary" data-action="go-exam">
+        <span class="btn-icon">🏆</span>
+        <span class="btn-label">模擬試験</span>
+        <span class="btn-sub">50問・本試験風配分</span>
+      </button>
       <button class="menu-btn full" data-action="go-stats">
         <span class="btn-icon">📊</span>
         <span class="btn-label">学習記録を見る</span>
@@ -652,6 +677,47 @@ function renderRandomCount() {
   </div>`;
 }
 
+// ── EXAM SETUP ─────────────────────────────────────────────────────────
+function renderExamSetup() {
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">模擬試験</div>
+    </div>
+    <div style="padding:16px">
+      <div class="stats-card" style="margin-bottom:16px">
+        <div class="stats-card-title">🏆 本試験風模擬試験</div>
+        <div style="font-size:14px;line-height:1.85;color:var(--text-mid);margin-bottom:10px">
+          本試験の出題配分に近い50問を出題します。
+        </div>
+        <div class="exam-alloc-grid">
+          <div class="exam-alloc-item"><span>🏢 宅建業法</span><strong>20問</strong></div>
+          <div class="exam-alloc-item"><span>⚖️ 権利関係</span><strong>14問</strong></div>
+          <div class="exam-alloc-item"><span>📋 法令上の制限</span><strong>8問</strong></div>
+          <div class="exam-alloc-item"><span>💴 税・その他</span><strong>8問</strong></div>
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:var(--g50);border-radius:var(--r-sm);font-size:13px;color:var(--text-mid)">
+          合格ライン目安：<strong style="color:var(--g700)">35点以上 / 50点満点</strong>
+        </div>
+      </div>
+      <div class="section-label">タイマーを選ぶ</div>
+      <button class="menu-btn full" data-action="start-exam" data-timer="1" style="margin-bottom:10px">
+        <span class="btn-icon">⏱️</span>
+        <span class="btn-label">時間を測って解く</span>
+        <span class="btn-sub">120分カウントダウン</span>
+      </button>
+      <button class="menu-btn full" data-action="start-exam" data-timer="0">
+        <span class="btn-icon">∞</span>
+        <span class="btn-label">時間制限なしで解く</span>
+        <span class="btn-sub">じっくり取り組む</span>
+      </button>
+    </div>
+  </div>`;
+}
+
 // ── QUIZ ───────────────────────────────────────────────────────────────
 function renderQuiz() {
   const q        = App.quizQuestions[App.currentIndex];
@@ -713,6 +779,7 @@ function renderQuiz() {
     bookmark: '付箋問題',
     'session-review': '復習',
     daily: '今日の5問',
+    exam: '模擬試験',
   };
 
   return `
@@ -731,6 +798,7 @@ function renderQuiz() {
     <div class="quiz-progress-track">
       <div class="quiz-progress-fill" style="width:${pct}%"></div>
     </div>
+    ${App.quizMode === 'exam' && App.examTimerEnabled ? `<div class="exam-timer-bar" id="exam-timer-display">⏱️ <span style="font-weight:700">${Math.floor(App.examTimerSeconds / 60)}:${String(App.examTimerSeconds % 60).padStart(2, '0')}</span></div>` : ''}
     <div class="quiz-body">
       <div class="q-card">
         <div class="q-card-top">
@@ -830,6 +898,95 @@ function renderResult() {
       ${reviewBtn}
       <button class="res-btn secondary" data-action="go-categories">
         📚 他の分野を学ぶ
+      </button>
+      <button class="res-btn secondary" data-action="go-home">
+        🏠 ホームへ戻る
+      </button>
+    </div>
+  </div>`;
+}
+
+// ── EXAM RESULT ────────────────────────────────────────────────────────
+function renderExamResult() {
+  const total    = App.quizQuestions.length;
+  const answered = App.sessionResults.length;
+  const correct  = App.sessionResults.filter(r => r.correct).length;
+  const wrong    = answered - correct;
+  const unanswered = total - answered;
+  const rate     = Math.round(correct / total * 100);
+  const PASS_LINE = 35;
+  const passed   = correct >= PASS_LINE;
+
+  const EXAM_ALLOC = [
+    { cat: '宅建業法',    n: 20, icon: '🏢' },
+    { cat: '権利関係',    n: 14, icon: '⚖️' },
+    { cat: '法令上の制限', n: 8,  icon: '📋' },
+    { cat: '税・その他',   n: 8,  icon: '💴' },
+  ];
+
+  const catRows = EXAM_ALLOC.map(({ cat, n, icon }) => {
+    const catQIds    = App.quizQuestions.filter(q => q.category === cat).map(q => q.id);
+    const catResults = App.sessionResults.filter(r => catQIds.includes(r.qid));
+    const catCorrect = catResults.filter(r => r.correct).length;
+    const catRate    = Math.round(catCorrect / n * 100);
+    const barColor   = catRate >= 70 ? 'var(--g400)' : catRate >= 50 ? '#F0B429' : '#E05252';
+    return `
+    <div class="exam-cat-row">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px">
+        <span>${icon} ${escapeHTML(cat)}</span>
+        <strong>${catCorrect} / ${n}問</strong>
+      </div>
+      <div class="cat-bar-track">
+        <div class="cat-bar-fill" style="width:${catRate}%;background:${barColor}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const wrongQids = App.sessionResults.filter(r => !r.correct).map(r => r.qid);
+  const reviewBtn = wrongQids.length > 0 ? `
+  <button class="res-btn primary" data-action="session-review">
+    🔄 間違えた${wrongQids.length}問を復習する
+  </button>` : `
+  <div style="text-align:center;padding:8px;font-size:14px;color:#40916C;font-weight:700">
+    🎉 全問正解！
+  </div>`;
+
+  const passLabel = passed
+    ? `<div class="exam-pass-badge pass">✅ 合格ライン達成</div>`
+    : `<div class="exam-pass-badge fail">📚 合格ライン未達（目安 35点以上）</div>`;
+
+  return `
+  <div class="screen">
+    <div class="result-hero">
+      ${scoreDonut(rate)}
+      <div class="result-sub">${total}問中 ${correct}問正解</div>
+      ${passLabel}
+      <div class="result-chips">
+        <div class="result-chip">
+          <div class="result-chip-val">✅ ${correct}</div>
+          <div class="result-chip-label">正解</div>
+        </div>
+        <div class="result-chip">
+          <div class="result-chip-val">❌ ${wrong}</div>
+          <div class="result-chip-label">不正解</div>
+        </div>
+        ${unanswered > 0 ? `
+        <div class="result-chip">
+          <div class="result-chip-val">⏭️ ${unanswered}</div>
+          <div class="result-chip-label">未回答</div>
+        </div>` : ''}
+      </div>
+    </div>
+    <div style="padding:0 16px 16px">
+      <div class="stats-card">
+        <div class="stats-card-title">📊 カテゴリ別結果</div>
+        ${catRows}
+      </div>
+    </div>
+    <div class="result-actions">
+      ${reviewBtn}
+      <button class="res-btn secondary" data-action="go-exam">
+        📝 もう一度模試を受ける
       </button>
       <button class="res-btn secondary" data-action="go-home">
         🏠 ホームへ戻る
@@ -1136,16 +1293,56 @@ function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   });
 }
 
+// ── EXAM TIMER ─────────────────────────────────────────────────────────
+function stopExamTimer() {
+  if (App._examTimerInterval) {
+    clearInterval(App._examTimerInterval);
+    App._examTimerInterval = null;
+  }
+}
+
+function startExamTimer() {
+  App._examTimerInterval = setInterval(() => {
+    if (App.screen !== 'quiz' || App.quizMode !== 'exam') {
+      stopExamTimer();
+      return;
+    }
+    App.examTimerSeconds--;
+    if (App.examTimerSeconds <= 0) {
+      stopExamTimer();
+      go('exam-result');
+      return;
+    }
+    const el = document.getElementById('exam-timer-display');
+    if (el) {
+      const m = Math.floor(App.examTimerSeconds / 60);
+      const s = App.examTimerSeconds % 60;
+      const color = App.examTimerSeconds <= 300 ? '#E05252' : 'var(--g700)';
+      el.innerHTML = `⏱️ <span style="font-weight:700;color:${color}">${m}:${String(s).padStart(2, '0')}</span>`;
+    }
+  }, 1000);
+}
+
 // ── EVENTS ─────────────────────────────────────────────────────────────
 document.getElementById('app').addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
 
   switch (el.dataset.action) {
-    case 'go-home':        go('home');        break;
+    case 'go-home':        stopExamTimer(); go('home');        break;
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
     case 'go-guide':       go('guide');       break;
+    case 'go-exam':        go('exam-setup');  break;
+
+    case 'start-exam': {
+      const timerOn = el.dataset.timer === '1';
+      App.examTimerEnabled = timerOn;
+      App.examTimerSeconds = timerOn ? 7200 : 0;
+      startQuiz('exam');
+      if (timerOn) startExamTimer();
+      break;
+    }
 
     case 'start-random':        go('random-count');                   break;
     case 'start-random-count':
