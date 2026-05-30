@@ -164,6 +164,22 @@ const Store = {
       this.save(d);
     }
   },
+
+  saveExamSession(data) {
+    const d = this.load();
+    d.examSession = data;
+    this.save(d);
+  },
+
+  loadExamSession() {
+    return this.load().examSession || null;
+  },
+
+  clearExamSession() {
+    const d = this.load();
+    delete d.examSession;
+    this.save(d);
+  },
 };
 
 // ── UTILITIES ──────────────────────────────────────────────────────────
@@ -290,6 +306,16 @@ function answerQuestion(idx) {
       updatedAt:     Date.now(),
     });
   }
+  if (App.quizMode === 'exam') {
+    Store.saveExamSession({
+      questionIds:      App.quizQuestions.map(q => q.id),
+      answers:          App.sessionResults.slice(),
+      nextIndex:        App.currentIndex + 1,
+      timerEnabled:     App.examTimerEnabled,
+      remainingSeconds: App.examTimerSeconds,
+      updatedAt:        Date.now(),
+    });
+  }
   render();
   // スクロールでフィードバックを表示
   requestAnimationFrame(() => {
@@ -307,6 +333,7 @@ function nextQuestion() {
       Store.clearResume(App._resumeKey);
       App._resumeKey = null;
     }
+    if (App.quizMode === 'exam') Store.clearExamSession();
     stopExamTimer();
     go(App.quizMode === 'exam' ? 'exam-result' : 'result');
     return;
@@ -1293,6 +1320,78 @@ function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   });
 }
 
+// ── EXAM RESUME ────────────────────────────────────────────────────────
+function isValidExamSession(es) {
+  if (!es) return false;
+  if (!Array.isArray(es.questionIds) || es.questionIds.length !== 50) return false;
+  if (!Array.isArray(es.answers)) return false;
+  if (typeof es.nextIndex !== 'number') return false;
+  if (es.nextIndex <= 0 || es.nextIndex >= es.questionIds.length) return false;
+  return true;
+}
+
+function showExamResumeDialog(es) {
+  const prev = document.getElementById('resume-dialog');
+  if (prev) prev.remove();
+
+  const answered = es.nextIndex;
+  const total    = es.questionIds.length;
+  const timeInfo = es.timerEnabled
+    ? `（残り${Math.floor(es.remainingSeconds / 60)}分）`
+    : '';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'resume-dialog';
+  overlay.innerHTML = `
+    <div class="resume-card">
+      <div class="resume-title">模試の途中から再開しますか？</div>
+      <div class="resume-body">${escapeHTML(String(answered))}問答えました（全${escapeHTML(String(total))}問）${escapeHTML(timeInfo)}</div>
+      <div class="resume-btns">
+        <button class="resume-btn-sub" data-exam-resume="restart">最初から解く</button>
+        <button class="resume-btn-primary" data-exam-resume="continue">続きから解く</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) { overlay.remove(); return; }
+    const btn = e.target.closest('[data-exam-resume]');
+    if (!btn) return;
+    overlay.remove();
+
+    if (btn.dataset.examResume === 'continue') {
+      const restored = es.questionIds.map(id => QUESTIONS.find(q => q.id === id));
+      if (restored.some(q => q === undefined)) {
+        Store.clearExamSession();
+        go('exam-setup');
+        return;
+      }
+      // Edge case: all answered already
+      if (es.nextIndex >= restored.length) {
+        Store.clearExamSession();
+        go('exam-setup');
+        return;
+      }
+      App.quizMode       = 'exam';
+      App.quizCategory   = null;
+      App.quizQuestions  = restored;
+      App.currentIndex   = es.nextIndex;
+      App.selectedAnswer = null;
+      App.sessionResults = es.answers.slice();
+      App._resumeKey     = null;
+      App._chapterStart  = undefined;
+      App.examTimerEnabled  = es.timerEnabled;
+      App.examTimerSeconds  = es.timerEnabled ? (es.remainingSeconds || 0) : 0;
+      go('quiz');
+      if (es.timerEnabled && App.examTimerSeconds > 0) startExamTimer();
+    } else {
+      Store.clearExamSession();
+      go('exam-setup');
+    }
+  });
+}
+
 // ── EXAM TIMER ─────────────────────────────────────────────────────────
 function stopExamTimer() {
   if (App._examTimerInterval) {
@@ -1302,6 +1401,7 @@ function stopExamTimer() {
 }
 
 function startExamTimer() {
+  stopExamTimer();
   App._examTimerInterval = setInterval(() => {
     if (App.screen !== 'quiz' || App.quizMode !== 'exam') {
       stopExamTimer();
@@ -1310,6 +1410,7 @@ function startExamTimer() {
     App.examTimerSeconds--;
     if (App.examTimerSeconds <= 0) {
       stopExamTimer();
+      Store.clearExamSession();
       go('exam-result');
       return;
     }
@@ -1329,11 +1430,30 @@ document.getElementById('app').addEventListener('click', e => {
   if (!el) return;
 
   switch (el.dataset.action) {
-    case 'go-home':        stopExamTimer(); go('home');        break;
+    case 'go-home': {
+      if (App.quizMode === 'exam' && App.screen === 'quiz') {
+        const es = Store.loadExamSession();
+        if (es) {
+          Store.saveExamSession({ ...es, remainingSeconds: App.examTimerSeconds, updatedAt: Date.now() });
+        }
+      }
+      stopExamTimer();
+      go('home');
+      break;
+    }
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
     case 'go-guide':       go('guide');       break;
-    case 'go-exam':        go('exam-setup');  break;
+    case 'go-exam': {
+      const es = Store.loadExamSession();
+      if (isValidExamSession(es)) {
+        showExamResumeDialog(es);
+      } else {
+        if (es) Store.clearExamSession();
+        go('exam-setup');
+      }
+      break;
+    }
 
     case 'start-exam': {
       const timerOn = el.dataset.timer === '1';
