@@ -417,6 +417,27 @@ function renderHome() {
   const paceColor  = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed)
     ? 'var(--g600)' : 'var(--text-mid)';
 
+  const dailyCTA = isDone
+    ? `
+    <div class="stats-card" style="margin:0 16px 12px;border-left:4px solid var(--g400)">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:30px">✅</span>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--g700)">今日の5問 完了！</div>
+          <div style="font-size:13px;color:var(--text-mid);margin-top:3px">また明日も続けましょう</div>
+        </div>
+      </div>
+    </div>`
+    : `
+    <div class="stats-card" style="margin:0 16px 12px;border-left:4px solid var(--g600)">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">🌟 今日の5問</div>
+      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;margin-bottom:12px">まずは5問だけ。今日の学習を始めましょう。</div>
+      <button class="menu-btn full" data-action="start-daily" style="margin:0;min-height:48px">
+        <span class="btn-icon" style="font-size:20px">🌟</span>
+        <span class="btn-label" style="font-size:15px;font-weight:700">今日の5問を始める</span>
+      </button>
+    </div>`;
+
   return `
   <div class="screen">
     <div class="home-hero">
@@ -439,7 +460,7 @@ function renderHome() {
       </div>
       <div class="stats-bar stats-bar-sm">
         <div class="stat-item">
-          <div class="stat-value">${todayCount}</div>
+          <div class="stat-value">${todayCount}問</div>
           <div class="stat-label">今日の学習</div>
         </div>
         <div class="stat-item">
@@ -448,6 +469,8 @@ function renderHome() {
         </div>
       </div>
     </div>
+
+    ${dailyCTA}
 
     <div class="stats-card" style="margin:0 16px 12px">
       <div class="stats-card-title">⚠️ 弱点サマリー</div>
