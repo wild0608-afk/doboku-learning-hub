@@ -400,7 +400,7 @@ function renderHome() {
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
   const planMsg   = wrongCnt > 0
-    ? `まず苦手 ${wrongCnt} 問を復習しよう`
+    ? `苦手 ${wrongCnt} 問から始めよう`
     : (isDone ? '今日の5問は完了！明日も続けよう' : '今日の5問から始めよう');
   const planAction = wrongCnt > 0 ? 'start-review' : 'start-daily';
   const planIcon   = wrongCnt > 0 ? '🔄' : (isDone ? '✅' : '🌟');
@@ -473,7 +473,7 @@ function renderHome() {
     ${dailyCTA}
 
     <div class="stats-card" style="margin:0 16px 12px">
-      <div class="stats-card-title">⚠️ 弱点サマリー</div>
+      <div class="stats-card-title">📊 弱点サマリー</div>
       <div class="stats-grid">
         <div class="stats-metric${wrongCnt > 0 ? ' accent' : ''}">
           <div class="stats-metric-val">${wrongCnt}</div>
@@ -489,12 +489,12 @@ function renderHome() {
           const barColor = s.rate === null ? 'var(--border)'
             : s.rate >= 70 ? 'var(--g400)'
             : s.rate >= 50 ? '#F0B429'
-            : '#E05252';
+            : '#E08080';
           const rateText = s.rate !== null ? s.rate + '%' : '─';
           const sub = s.rate === null ? ''
             : s.rate >= 70
               ? `<span style="font-size:10px;color:var(--g600)">✓達成</span>`
-              : `<span style="font-size:10px;color:#E05252">目安まで${70 - s.rate}%</span>`;
+              : `<span style="font-size:10px;color:var(--text-mid)">70%まで${70 - s.rate}%</span>`;
           return `
           <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
             <span style="font-size:15px;flex-shrink:0">${CAT_ICONS[s.cat]}</span>
@@ -510,14 +510,14 @@ function renderHome() {
           </div>`;
         }).join('')}
       </div>
-      <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? '#E05252' : '#52B788'}">
-        ${wrongCnt > 0 ? '⚠️ 要復習あり' : '✅ 順調です！'}
+      <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? 'var(--text-mid)' : '#52B788'}">
+        ${wrongCnt > 0 ? '📝 復習おすすめ' : '✅ 順調です！'}
       </div>
       ${wrongCnt > 0 ? `
       <button class="menu-btn full" data-action="start-review"
         style="margin-top:10px;min-height:48px;padding:12px 20px">
         <span class="btn-icon" style="font-size:20px">🔄</span>
-        <span class="btn-label" style="font-size:14px">今すぐ復習する（${wrongCnt}問）</span>
+        <span class="btn-label" style="font-size:14px">まとめて復習する（${wrongCnt}問）</span>
       </button>` : ''}
     </div>
 
