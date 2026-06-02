@@ -606,22 +606,28 @@ function renderCategories() {
   };
 
   const cards = CATEGORIES.map(cat => {
-    const qs       = QUESTIONS.filter(q => q.category === cat);
-    const done     = qs.filter(q => hist[q.id] && hist[q.id].attempts > 0).length;
-    const attempts = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
-    const correct  = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
-    const rate     = attempts > 0 ? Math.round(correct / attempts * 100) : null;
+    const qs          = QUESTIONS.filter(q => q.category === cat);
+    const done        = qs.filter(q => hist[q.id] && hist[q.id].attempts > 0).length;
+    const attempts    = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+    const correct     = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+    const wrong       = qs.filter(q => hist[q.id] && hist[q.id].attempts > 0 && hist[q.id].correct < hist[q.id].attempts).length;
+    const rate        = attempts > 0 ? Math.round(correct / attempts * 100) : null;
+    const progressPct = Math.round(done / qs.length * 100);
 
     return `
     <div class="cat-card" data-action="start-category" data-value="${escapeHTML(cat)}">
       <div class="cat-icon">${icons[cat] || '📖'}</div>
-      <div class="cat-info">
-        <div class="cat-name">${escapeHTML(cat)}</div>
-        <div class="cat-meta">${done} / ${qs.length}問 学習済み</div>
-      </div>
-      <div class="cat-rate">
-        <div class="cat-rate-num">${rate !== null ? rate + '%' : '─'}</div>
-        <div class="cat-rate-label">正答率</div>
+      <div class="cat-body">
+        <div class="cat-name-row">
+          <div class="cat-name">${escapeHTML(cat)}</div>
+          <div class="cat-total">${qs.length}問</div>
+        </div>
+        <div class="cat-progress-bar"><div class="cat-progress-fill" style="width:${progressPct}%"></div></div>
+        <div class="cat-stats-row">
+          <span class="cat-stat-done">済 ${done}問</span>
+          <span class="cat-stat-rate">${rate !== null ? rate + '%' : '─'} 正答</span>
+          ${wrong > 0 ? `<span class="cat-stat-wrong">復習 ${wrong}問</span>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -632,7 +638,7 @@ function renderCategories() {
       <button class="btn-back" data-action="go-home">
         <span class="btn-back-arrow">←</span>戻る
       </button>
-      <div class="header-title">分野を選ぶ</div>
+      <div class="header-title">合格戦略ダッシュボード</div>
     </div>
     <div class="cat-list">${cards}</div>
   </div>`;
