@@ -401,12 +401,6 @@ function renderHome() {
   const EXAM_DATE = new Date('2026-10-18');
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
-  const planMsg   = wrongCnt > 0
-    ? `苦手 ${wrongCnt} 問から始めよう`
-    : (isDone ? '今日の5問は完了！明日も続けよう' : '今日の5問から始めよう');
-  const planAction = wrongCnt > 0 ? 'start-review' : 'start-daily';
-  const planIcon   = wrongCnt > 0 ? '🔄' : (isDone ? '✅' : '🌟');
-
   const undone     = QUESTIONS.length - done;
   const paceNeed   = daysLeft > 0 && undone > 0 ? Math.ceil(undone / daysLeft) : 0;
   const paceStatus = undone === 0
@@ -419,179 +413,223 @@ function renderHome() {
   const paceColor  = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed)
     ? 'var(--g600)' : 'var(--text-mid)';
 
-  const dailyCTA = isDone
-    ? `
-    <div class="stats-card" style="margin:0 16px 12px;border-left:4px solid var(--g400)">
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:30px">✅</span>
-        <div>
-          <div style="font-size:15px;font-weight:700;color:var(--g700)">今日の5問 完了！</div>
-          <div style="font-size:13px;color:var(--text-mid);margin-top:3px">また明日も続けましょう</div>
-        </div>
-      </div>
-    </div>`
-    : `
-    <div class="stats-card" style="margin:0 16px 12px;border-left:4px solid var(--g600)">
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">🌟 今日の5問</div>
-      <div style="font-size:13px;color:var(--text-mid);line-height:1.7;margin-bottom:12px">まずは5問だけ。今日の学習を始めましょう。</div>
-      <button class="menu-btn full" data-action="start-daily" style="margin:0;min-height:48px">
-        <span class="btn-icon" style="font-size:20px">🌟</span>
-        <span class="btn-label" style="font-size:15px;font-weight:700">今日の5問を始める</span>
-      </button>
-    </div>`;
+  const totalQ        = QUESTIONS.length;
+  const overallPct    = Math.round(done / totalQ * 100);
+  const paceGood      = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed);
+  const paceBoxLabel  = paceGood ? '良好' : '伸ばそう';
+
+  // 次のおすすめ：今日の5問完了後に、次に押すべき行動を1つ提案
+  const nextTip = (
+    wrongCnt >= 3
+      ? { title:'間違えた問題を復習', reason:`苦手問題が ${wrongCnt} 問あります`,
+          btnLabel:'復習する', action:'start-review', icon:'🔄' }
+    : (worstCat && worstCat.rate !== null && worstCat.rate < 60)
+      ? { title:'苦手分野を強化', reason:`${worstCat.cat} の正答率が ${worstCat.rate}%`,
+          btnLabel:'分野別学習', action:'go-categories', icon:'📚' }
+    : wrongCnt > 0
+      ? { title:'残り問題を復習', reason:`復習対象が ${wrongCnt} 問あります`,
+          btnLabel:'復習する', action:'start-review', icon:'🔄' }
+    : { title:'模擬試験で確認', reason:'実戦形式で仕上げましょう',
+        btnLabel:'模試へ', action:'go-exam', icon:'🏆' }
+  );
+
+  // 苦手分野TOP1（ホーム表示用。詳細は学習記録画面に任せる）
+  const worstHasData = worstCat && worstCat.rate !== null;
+  const worstColor   = worstHasData
+    ? (worstCat.rate >= 70 ? 'var(--g400)'
+      : worstCat.rate >= 50 ? 'var(--blue)' : 'var(--red)')
+    : 'var(--border)';
 
   return `
   <div class="screen">
+
     <div class="home-hero">
-      <div class="home-logo">🏠</div>
-      <div class="home-title">Takken Learning Hub</div>
-      <div class="home-subtitle">宅建試験 学習サポートアプリ</div>
-      <div class="stats-bar">
-        <div class="stat-item">
-          <div class="stat-value">${done}</div>
-          <div class="stat-label">学習済み問題</div>
+      <div class="home-hero-pattern" aria-hidden="true"></div>
+      <div class="home-hero-top">
+        <div class="home-logo-wrap">
+          <span style="font-size:30px;line-height:1">🏠</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-value">${total}</div>
-          <div class="stat-label">総回答数</div>
+        <div class="home-hero-titles">
+          <div class="home-title">Takken Learning Hub</div>
+          <div class="home-subtitle">宅建試験の合格を、ここから一緒に。</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-value">${rate}%</div>
-          <div class="stat-label">正答率</div>
-        </div>
-      </div>
-      <div class="stats-bar stats-bar-sm">
-        <div class="stat-item">
-          <div class="stat-value">${todayCount}問</div>
-          <div class="stat-label">今日の学習</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">${streakDays}日</div>
-          <div class="stat-label">連続学習</div>
-        </div>
+        <div class="home-hero-bell" aria-hidden="true">🔔</div>
       </div>
     </div>
 
-    ${dailyCTA}
-
-    <div class="stats-card" style="margin:0 16px 12px">
-      <div class="stats-card-title">📊 弱点サマリー</div>
-      <div class="stats-grid">
-        <div class="stats-metric${wrongCnt > 0 ? ' accent' : ''}">
-          <div class="stats-metric-val">${wrongCnt}</div>
-          <div class="stats-metric-label">苦手問題数</div>
-        </div>
-        <div class="stats-metric">
-          <div class="stats-metric-val">${rate}%</div>
-          <div class="stats-metric-label">全体正答率</div>
-        </div>
+    <div class="stats-card-large">
+      <div class="stat-cell">
+        <div class="stat-cell-icon">📚</div>
+        <div class="stat-cell-val">${done}</div>
+        <div class="stat-cell-label">学習済み</div>
       </div>
-      <div style="margin-top:10px">
-        ${catAll.map(s => {
-          const barColor = s.rate === null ? 'var(--border)'
-            : s.rate >= 70 ? 'var(--g400)'
-            : s.rate >= 50 ? '#F0B429'
-            : '#E08080';
-          const rateText = s.rate !== null ? s.rate + '%' : '─';
-          const sub = s.rate === null ? ''
-            : s.rate >= 70
-              ? `<span style="font-size:10px;color:var(--g600)">✓達成</span>`
-              : `<span style="font-size:10px;color:var(--text-mid)">70%まで${70 - s.rate}%</span>`;
-          return `
-          <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:15px;flex-shrink:0">${CAT_ICONS[s.cat]}</span>
-            <div style="flex:1;min-width:0">
-              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-                <span style="color:var(--text-mid)">${s.cat}</span>
-                <span style="display:flex;gap:6px;align-items:center">${sub}<strong style="color:var(--text)">${rateText}</strong></span>
-              </div>
-              <div class="cat-bar-track">
-                <div class="cat-bar-fill" style="width:${s.rate ?? 0}%;background:${barColor}"></div>
-              </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">📝</div>
+        <div class="stat-cell-val">${total}</div>
+        <div class="stat-cell-label">総回答数</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">🎯</div>
+        <div class="stat-cell-val">${rate}<span class="stat-cell-unit">%</span></div>
+        <div class="stat-cell-label">正答率</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">✏️</div>
+        <div class="stat-cell-val">${todayCount}</div>
+        <div class="stat-cell-label">今日</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">🔥</div>
+        <div class="stat-cell-val">${streakDays}<span class="stat-cell-unit">日</span></div>
+        <div class="stat-cell-label">連続学習</div>
+      </div>
+    </div>
+
+    <div class="home-body">
+
+      ${isDone
+        ? `<div class="home-done-card">
+            <div class="home-done-badge">
+              <span class="home-done-check">✓</span>
             </div>
-          </div>`;
-        }).join('')}
+            <div class="home-done-text">
+              <div class="home-done-title">今日の5問 完了！</div>
+              <div class="home-done-sub">また明日も続けましょう</div>
+            </div>
+          </div>`
+        : `<div class="home-daily-card">
+            <div class="home-daily-badge">
+              <span class="home-daily-badge-num">5</span>
+              <span class="home-daily-badge-text">問</span>
+            </div>
+            <div class="home-daily-content">
+              <div class="home-daily-title">今日の5問</div>
+              <div class="home-daily-sub">今日の学習を始めましょう</div>
+            </div>
+            <button class="home-daily-btn" data-action="start-daily">
+              <span class="home-daily-btn-label">今日の5問を始める</span>
+              <span class="home-daily-btn-arrow">›</span>
+            </button>
+          </div>`
+      }
+
+      <div class="home-plan-card">
+        <div class="home-plan-header">
+          <div class="home-plan-title-row">
+            <span class="home-plan-icon">📅</span>
+            <span class="home-plan-title">試験日から逆算</span>
+          </div>
+          <span class="home-plan-days-badge">残り${daysLeft}日</span>
+        </div>
+        <div class="home-plan-body">
+          <div class="home-plan-days">未学習 <strong>${undone}問</strong> ／ 試験まで <strong>${daysLeft}日</strong></div>
+          ${undone > 0 && daysLeft > 0
+            ? `<div class="home-plan-pace-need">1日 <strong>${paceNeed}問</strong> ペースで一周できます</div>`
+            : (undone === 0 ? `<div class="home-plan-pace-need">全問学習済み。復習で仕上げましょう</div>` : '')}
+        </div>
       </div>
-      <div style="margin-top:6px;font-size:13px;font-weight:700;color:${wrongCnt > 0 ? 'var(--text-mid)' : '#52B788'}">
-        ${wrongCnt > 0 ? '📝 復習おすすめ' : '✅ 順調です！'}
+
+      <div class="menu-section">
+        <div class="section-label">学習メニュー</div>
+        <div class="menu-grid">
+          <button class="menu-btn" data-action="go-categories">
+            <span class="btn-icon">📚</span>
+            <span class="btn-label">分野別学習</span>
+            <span class="btn-sub">カテゴリを選んで学ぶ</span>
+          </button>
+          <button class="menu-btn" data-action="start-random">
+            <span class="btn-icon">🎲</span>
+            <span class="btn-label">ランダムテスト</span>
+            <span class="btn-sub">10・20・30問</span>
+          </button>
+          <button class="menu-btn" data-action="start-review"
+            style="${wrongCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-label">間違い復習</span>
+            <span class="btn-sub">${wrongCnt > 0 ? '復習対象：' + wrongCnt + '問' : '対象なし'}</span>
+          </button>
+          <button class="menu-btn" data-action="start-bookmark"
+            style="${bkCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
+            <span class="btn-icon">🔖</span>
+            <span class="btn-label">付箋問題</span>
+            <span class="btn-sub">${bkCnt > 0 ? bkCnt + '問' : 'なし'}</span>
+          </button>
+          <button class="menu-btn" data-action="go-exam">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-label">模擬試験</span>
+            <span class="btn-sub">50問・本試験風配分</span>
+          </button>
+          <button class="menu-btn" data-action="go-stats">
+            <span class="btn-icon">📊</span>
+            <span class="btn-label">学習記録</span>
+            <span class="btn-sub">これまでの記録を見る</span>
+          </button>
+        </div>
+        <button class="menu-btn full" data-action="go-guide">
+          <span class="btn-icon">📘</span>
+          <span class="btn-label">アプリの使い方</span>
+          <span class="btn-sub">基本操作と機能ガイド</span>
+        </button>
       </div>
-      ${wrongCnt > 0 ? `
-      <button class="menu-btn full" data-action="start-review"
-        style="margin-top:10px;min-height:48px;padding:12px 20px">
-        <span class="btn-icon" style="font-size:20px">🔄</span>
-        <span class="btn-label" style="font-size:14px">まとめて復習する（${wrongCnt}問）</span>
-      </button>` : ''}
+
+      <div class="home-section">
+        <div class="home-section-title">学習診断</div>
+        <div class="weakness-row">
+          <div class="weakness-cell weakness-cell-red${wrongCnt === 0 ? ' weakness-cell-muted' : ''}">
+            <div class="weakness-cell-val">${wrongCnt}<span class="weakness-cell-unit">問</span></div>
+            <div class="weakness-cell-label">苦手問題数</div>
+          </div>
+          <div class="weakness-cell weakness-cell-blue">
+            <div class="weakness-cell-val">${rate}<span class="weakness-cell-unit">%</span></div>
+            <div class="weakness-cell-label">全体正答率</div>
+          </div>
+          <div class="weakness-cell weakness-cell-good${paceGood ? '' : ' weakness-cell-good-warn'}">
+            <div class="weakness-cell-msg-label">学習ペース</div>
+            <div class="weakness-cell-msg-body">${paceBoxLabel}</div>
+          </div>
+        </div>
+        <div class="weakness-worst">
+          ${worstHasData ? `
+            <div class="weakness-worst-meta">
+              <span class="weakness-worst-label">苦手分野</span>
+              <span class="weakness-worst-name">${CAT_ICONS[worstCat.cat]} ${worstCat.cat}</span>
+              <span class="weakness-worst-rate">${worstCat.rate}%</span>
+            </div>
+            <div class="cat-bar-track">
+              <div class="cat-bar-fill" style="width:${worstCat.rate}%;background:${worstColor}"></div>
+            </div>
+          ` : `<div class="weakness-worst-empty">まだ十分なデータがありません</div>`}
+        </div>
+        <div class="weakness-progress">
+          <div class="weakness-progress-meta">
+            <span class="weakness-progress-label">学習進捗</span>
+            <span class="weakness-progress-val"><strong>${done}</strong> / ${totalQ}問</span>
+          </div>
+          <div class="cat-bar-track">
+            <div class="cat-bar-fill" style="width:${overallPct}%;background:linear-gradient(90deg,var(--blue),var(--blue-light))"></div>
+          </div>
+        </div>
+        <div class="home-pace-status ${paceGood ? 'home-pace-ok' : 'home-pace-info'}">
+          ${paceStatus}
+        </div>
+        <button class="weakness-detail-link" data-action="go-stats">詳しくは学習記録で確認 ›</button>
+      </div>
+
+      ${isDone ? `
+      <div class="home-tip-card">
+        <div class="home-tip-badge">
+          <span class="home-tip-icon">${nextTip.icon}</span>
+        </div>
+        <div class="home-tip-content">
+          <div class="home-tip-label">次のおすすめ</div>
+          <div class="home-tip-title">${nextTip.title}</div>
+          <div class="home-tip-reason">${nextTip.reason}</div>
+        </div>
+        <button class="home-tip-btn" data-action="${nextTip.action}">${nextTip.btnLabel} ›</button>
+      </div>` : ''}
+
     </div>
 
-    <div class="stats-card" style="margin:0 16px 12px">
-      <div class="stats-card-title">🗓️ 試験日逆算プラン</div>
-      <div style="text-align:center;margin-bottom:12px">
-        <span style="font-size:36px;font-weight:900;color:var(--g600)">${daysLeft}日</span>
-        <span style="font-size:13px;color:var(--text-sub);margin-left:6px">試験まで</span>
-        <div style="font-size:11px;color:var(--text-sub);margin-top:2px">宅建試験日：2026/10/18</div>
-      </div>
-      <div class="stats-grid" style="margin-bottom:10px">
-        <div class="stats-metric">
-          <div class="stats-metric-val">5問</div>
-          <div class="stats-metric-label">今日の目標</div>
-        </div>
-        <div class="stats-metric">
-          <div class="stats-metric-val">35問</div>
-          <div class="stats-metric-label">今週の目標</div>
-        </div>
-      </div>
-      <div style="margin:8px 0 10px;padding:10px 12px;background:var(--g50);border-radius:var(--r-sm);font-size:13px;color:var(--text-mid);line-height:1.85">
-        <div>未学習 <strong style="color:var(--text)">${undone}問</strong></div>
-        ${undone > 0 && daysLeft > 0 ? `<div>残り${daysLeft}日 → 1日<strong style="color:var(--text)">${paceNeed}問</strong>ペースで完走</div>` : ''}
-        <div style="font-weight:700;color:${paceColor}">${paceStatus}</div>
-      </div>
-      <button class="menu-btn full" data-action="${planAction}"
-        style="min-height:48px;padding:12px 20px">
-        <span class="btn-icon" style="font-size:20px">${planIcon}</span>
-        <span class="btn-label" style="font-size:14px">${planMsg}</span>
-      </button>
-    </div>
-
-    <div class="menu-section">
-      <div class="section-label">学習メニュー</div>
-      <div class="menu-grid">
-        <button class="menu-btn primary" data-action="go-categories">
-          <span class="btn-icon">📚</span>
-          <span class="btn-label">分野別学習</span>
-          <span class="btn-sub">カテゴリを選んで学ぶ</span>
-        </button>
-        <button class="menu-btn" data-action="start-random">
-          <span class="btn-icon">🎲</span>
-          <span class="btn-label">ランダムテスト</span>
-          <span class="btn-sub">10・20・30問</span>
-        </button>
-        <button class="menu-btn" data-action="start-review"
-          style="${wrongCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
-          <span class="btn-icon">🔄</span>
-          <span class="btn-label">間違い復習</span>
-          <span class="btn-sub">${wrongCnt > 0 ? wrongCnt + '問' : '対象なし'}</span>
-        </button>
-        <button class="menu-btn" data-action="start-bookmark"
-          style="${bkCnt === 0 ? 'opacity:0.45;pointer-events:none' : ''}">
-          <span class="btn-icon">🔖</span>
-          <span class="btn-label">付箋問題</span>
-          <span class="btn-sub">${bkCnt > 0 ? bkCnt + '問' : 'なし'}</span>
-        </button>
-      </div>
-      <button class="menu-btn full primary" data-action="go-exam">
-        <span class="btn-icon">🏆</span>
-        <span class="btn-label">模擬試験</span>
-        <span class="btn-sub">50問・本試験風配分</span>
-      </button>
-      <button class="menu-btn full" data-action="go-stats">
-        <span class="btn-icon">📊</span>
-        <span class="btn-label">学習記録を見る</span>
-      </button>
-      <button class="menu-btn full" data-action="go-guide">
-        <span class="btn-icon">📘</span>
-        <span class="btn-label">アプリの使い方</span>
-      </button>
-    </div>
   </div>`;
 }
 
@@ -919,7 +957,7 @@ function renderResult() {
   <button class="res-btn primary" data-action="session-review">
     🔄 間違い問題を復習する
   </button>` : `
-  <div style="text-align:center;padding:8px;font-size:14px;color:#40916C;font-weight:700">
+  <div style="text-align:center;padding:8px;font-size:14px;color:#2563EB;font-weight:700">
     🎉 全問正解！
   </div>`;
 
@@ -1000,7 +1038,7 @@ function renderExamResult() {
   <button class="res-btn primary" data-action="session-review">
     🔄 間違えた${wrongQids.length}問を復習する
   </button>` : `
-  <div style="text-align:center;padding:8px;font-size:14px;color:#40916C;font-weight:700">
+  <div style="text-align:center;padding:8px;font-size:14px;color:#2563EB;font-weight:700">
     🎉 全問正解！
   </div>`;
 
@@ -1588,7 +1626,7 @@ function showToast(msg) {
   t.style.cssText = [
     'position:fixed', 'bottom:32px', 'left:50%',
     'transform:translateX(-50%)',
-    'background:#1B4332', 'color:#fff',
+    'background:#1E40AF', 'color:#fff',
     'padding:12px 22px', 'border-radius:14px',
     'font-size:14px', 'font-weight:700',
     'white-space:pre-line', 'text-align:center',
