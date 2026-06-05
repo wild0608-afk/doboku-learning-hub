@@ -366,6 +366,7 @@ function render() {
     stats:               renderStats,
     guide:               renderGuide,
     numbers:             renderNumbers,
+    confusion:           renderConfusion,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -571,6 +572,11 @@ function renderHome() {
           <span class="btn-icon">🔢</span>
           <span class="btn-label">重要数字マップ</span>
           <span class="btn-sub">頻出の数字・期限を整理</span>
+        </button>
+        <button class="menu-btn full" data-action="go-confusion">
+          <span class="btn-icon">🧩</span>
+          <span class="btn-label">混同ポイント整理</span>
+          <span class="btn-sub">似た制度の違いを比較</span>
         </button>
         <button class="menu-btn full" data-action="go-guide">
           <span class="btn-icon">📘</span>
@@ -1617,6 +1623,69 @@ function renderNumbers() {
   </div>`;
 }
 
+// ── CONFUSION MAP ──────────────────────────────────────────────────────
+function renderConfusion() {
+  const data = [
+    {
+      category: '宅建業法',
+      title: '35条書面 vs 37条書面',
+      leftLabel: '35条書面（重要事項説明書）',
+      rightLabel: '37条書面（契約書面）',
+      leftBody: '契約締結前に交付\n宅建士が説明する\n買主・借主に交付',
+      rightBody: '契約締結後、遅滞なく交付\n宅建士の記名が必要\n売主・買主など契約当事者に交付',
+      rememberPoint: '契約「前」が35条、契約「後」が37条。',
+      dangerPoint: '37条書面は説明義務までは不要。ただし宅建士の記名は必要です。',
+    },
+    {
+      category: '宅建業法',
+      title: '営業保証金 vs 弁済業務保証金分担金',
+      leftLabel: '営業保証金',
+      rightLabel: '弁済業務保証金分担金',
+      leftBody: '本店1,000万円\n支店ごとに500万円\n供託所に供託',
+      rightBody: '本店60万円\n支店ごとに30万円\n保証協会に納付',
+      rememberPoint: '営業保証金は高額で供託所、分担金は保証協会に納付。',
+      dangerPoint: '金額だけでなく、供託先・納付先も混同しやすいポイントです。',
+    },
+  ];
+
+  const ORDER = ['宅建業法', '法令上の制限', '税・その他', '権利関係'];
+
+  const makeBody = text => escapeHTML(text).replace(/\n/g, '<br>');
+
+  const cards = data.map(item => `
+    <div class="confusion-card">
+      <div class="confusion-cat-tag">${escapeHTML(item.category)}</div>
+      <div class="confusion-title">${escapeHTML(item.title)}</div>
+      <div class="confusion-compare">
+        <div class="confusion-side">
+          <div class="confusion-side-label">${escapeHTML(item.leftLabel)}</div>
+          <div class="confusion-side-body">${makeBody(item.leftBody)}</div>
+        </div>
+        <div class="confusion-divider"></div>
+        <div class="confusion-side">
+          <div class="confusion-side-label">${escapeHTML(item.rightLabel)}</div>
+          <div class="confusion-side-body">${makeBody(item.rightBody)}</div>
+        </div>
+      </div>
+      <div class="confusion-remember">💡 ${escapeHTML(item.rememberPoint)}</div>
+      <div class="confusion-danger">⚠️ ${escapeHTML(item.dangerPoint)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">混同ポイント整理</div>
+    </div>
+    <div class="confusion-body">
+      <div class="confusion-intro">似た制度の違いを、左右で見比べて整理します。</div>
+      ${cards}
+    </div>
+  </div>`;
+}
+
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
 function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   const prev = document.getElementById('resume-dialog');
@@ -1802,6 +1871,7 @@ document.getElementById('app').addEventListener('click', e => {
       App.numbersCategory = null;
       go('numbers');
       break;
+    case 'go-confusion': go('confusion'); break;
     case 'select-numbers-category':
       App.numbersCategory = el.dataset.value;
       render();
