@@ -77,6 +77,18 @@ html, body {
   #app { box-shadow: 0 0 48px rgba(0,0,0,0.12); }
 }
 
+@media (min-width: 600px) {
+  #app { max-width: 600px; }
+}
+
+@media (min-width: 768px) {
+  #app { max-width: 720px; }
+}
+
+@media (min-width: 1024px) {
+  #app { max-width: 760px; }
+}
+
 /* ── Animations ── */
 .screen {
   min-height: 100vh;
