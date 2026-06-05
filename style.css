@@ -1841,3 +1841,48 @@ html, body {
   color: var(--text-sub);
   line-height: 1.6;
 }
+
+.numbers-cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.numbers-cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.numbers-cat-btn-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.numbers-cat-btn-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.numbers-cat-btn-count {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.numbers-cat-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--blue);
+}

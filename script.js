@@ -42,6 +42,7 @@ const App = {
   sessionResults: [],
   randomCount: 10,
   selectedCategory: null,
+  numbersCategory: null,
   _resumeKey: null,
   _chapterStart: undefined,
   examTimerEnabled: false,
@@ -1518,11 +1519,84 @@ function renderNumbers() {
       value: '知った時から5年 / 権利行使できる時から10年',
       note: 'どちらか先に到来した時点で時効が完成します。',
     },
+    {
+      category: '権利関係',
+      label: '所有権の取得時効',
+      value: '10年 / 20年',
+      note: '善意無過失なら10年、それ以外は20年で取得時効が完成します。',
+    },
+    {
+      category: '権利関係',
+      label: '取消権の期間制限',
+      value: '追認できる時から5年 / 行為時から20年',
+      note: 'どちらか先に経過すると取消権は消滅します。',
+    },
+    {
+      category: '権利関係',
+      label: '即時取得：盗品・遺失物の回復期間',
+      value: '盗難・遺失から2年以内',
+      note: '被害者・遺失者は2年以内に限り、原則として回復請求できます。',
+    },
+    {
+      category: '権利関係',
+      label: '相続放棄・限定承認',
+      value: '知った時から3ヶ月以内',
+      note: '自己のために相続開始があったことを知った時から起算します。',
+    },
+    {
+      category: '権利関係',
+      label: '共有物の重大変更',
+      value: '共有者全員の同意',
+      note: '形状または効用の著しい変更を伴う場合です。管理は持分価格の過半数、保存行為は各共有者が単独でできます。',
+    },
+    {
+      category: '権利関係',
+      label: '区分所有法：建替え決議',
+      value: '区分所有者および議決権の各5分の4以上',
+      note: '建替えは特に重い決議要件です。',
+    },
+    {
+      category: '権利関係',
+      label: '区分所有法：規約の設定・変更・廃止',
+      value: '区分所有者および議決権の各4分の3以上',
+      note: '共用部分の重大変更や管理組合法人設立とも混同しやすい数字です。',
+    },
   ];
 
-  const cards = data.map(item => `
+  const ORDER = ['宅建業法', '法令上の制限', '税・その他', '権利関係'];
+  const CAT_ICONS = { '宅建業法': '🏢', '法令上の制限': '📋', '税・その他': '💴', '権利関係': '⚖️' };
+
+  const selected = App.numbersCategory;
+
+  if (!selected) {
+    const catBtns = ORDER.map(cat => {
+      const count = data.filter(d => d.category === cat).length;
+      return `
+      <div class="numbers-cat-btn" data-action="select-numbers-category" data-value="${escapeHTML(cat)}">
+        <span class="numbers-cat-btn-icon">${CAT_ICONS[cat] || '📖'}</span>
+        <span class="numbers-cat-btn-name">${escapeHTML(cat)}</span>
+        <span class="numbers-cat-btn-count">${count}件</span>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="screen">
+      <div class="header">
+        <button class="btn-back" data-action="go-home">
+          <span class="btn-back-arrow">←</span>戻る
+        </button>
+        <div class="header-title">重要数字マップ</div>
+      </div>
+      <div class="numbers-body">
+        <div class="numbers-intro">宅建で混同しやすい数字・期限・割合を整理します。</div>
+        <div class="numbers-cat-list">${catBtns}</div>
+      </div>
+    </div>`;
+  }
+
+  const items = data.filter(d => d.category === selected);
+  const cardsHtml = items.map(item => `
     <div class="numbers-card">
-      <div class="numbers-cat-tag">${escapeHTML(item.category)}</div>
       <div class="numbers-label">${escapeHTML(item.label)}</div>
       <div class="numbers-value">${escapeHTML(item.value)}</div>
       <div class="numbers-note">${escapeHTML(item.note)}</div>
@@ -1531,14 +1605,14 @@ function renderNumbers() {
   return `
   <div class="screen">
     <div class="header">
-      <button class="btn-back" data-action="go-home">
-        <span class="btn-back-arrow">←</span>戻る
+      <button class="btn-back" data-action="back-numbers-categories">
+        <span class="btn-back-arrow">←</span>分野選択へ戻る
       </button>
       <div class="header-title">重要数字マップ</div>
     </div>
     <div class="numbers-body">
-      <div class="numbers-intro">宅建で混同しやすい数字・期限・割合を整理します。</div>
-      ${cards}
+      <div class="numbers-cat-heading">${CAT_ICONS[selected] || '📖'} ${escapeHTML(selected)}（${items.length}）</div>
+      ${cardsHtml}
     </div>
   </div>`;
 }
@@ -1724,7 +1798,20 @@ document.getElementById('app').addEventListener('click', e => {
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
     case 'go-guide':       go('guide');       break;
-    case 'go-numbers':     go('numbers');     break;
+    case 'go-numbers':
+      App.numbersCategory = null;
+      go('numbers');
+      break;
+    case 'select-numbers-category':
+      App.numbersCategory = el.dataset.value;
+      render();
+      window.scrollTo(0, 0);
+      break;
+    case 'back-numbers-categories':
+      App.numbersCategory = null;
+      render();
+      window.scrollTo(0, 0);
+      break;
     case 'go-exam': {
       const es = Store.loadExamSession();
       if (isValidExamSession(es)) {
