@@ -364,6 +364,7 @@ function render() {
     'exam-result':       renderExamResult,
     stats:               renderStats,
     guide:               renderGuide,
+    numbers:             renderNumbers,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -565,6 +566,11 @@ function renderHome() {
             <span class="btn-sub">これまでの記録を見る</span>
           </button>
         </div>
+        <button class="menu-btn full" data-action="go-numbers">
+          <span class="btn-icon">🔢</span>
+          <span class="btn-label">重要数字マップ</span>
+          <span class="btn-sub">頻出の数字・期限を整理</span>
+        </button>
         <button class="menu-btn full" data-action="go-guide">
           <span class="btn-icon">📘</span>
           <span class="btn-label">アプリの使い方</span>
@@ -1347,6 +1353,58 @@ function renderGuide() {
   </div>`;
 }
 
+// ── NUMBERS MAP ────────────────────────────────────────────────────────
+function renderNumbers() {
+  const data = [
+    {
+      category: '宅建業法',
+      label: '媒介契約の有効期間（専任・専属専任）',
+      value: '3ヶ月以内',
+      note: '依頼者からの申出があれば更新できます。一般媒介にこの制限はありません。',
+    },
+    {
+      category: '法令上の制限',
+      label: '農地法3条：許可権者',
+      value: '農業委員会',
+      note: '農地を農地のまま権利移動する場合です。',
+    },
+    {
+      category: '税・その他',
+      label: '固定資産税の免税点（土地）',
+      value: '30万円未満',
+      note: '課税標準額が30万円未満の場合は課税されません。',
+    },
+    {
+      category: '権利関係',
+      label: '消滅時効（債権・一般）',
+      value: '知った時から5年 / 権利行使できる時から10年',
+      note: 'どちらか先に到来した時点で時効が完成します。',
+    },
+  ];
+
+  const cards = data.map(item => `
+    <div class="numbers-card">
+      <div class="numbers-cat-tag">${escapeHTML(item.category)}</div>
+      <div class="numbers-label">${escapeHTML(item.label)}</div>
+      <div class="numbers-value">${escapeHTML(item.value)}</div>
+      <div class="numbers-note">${escapeHTML(item.note)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">重要数字マップ</div>
+    </div>
+    <div class="numbers-body">
+      <div class="numbers-intro">宅建で混同しやすい数字・期限・割合を整理します。</div>
+      ${cards}
+    </div>
+  </div>`;
+}
+
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
 function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   const prev = document.getElementById('resume-dialog');
@@ -1528,6 +1586,7 @@ document.getElementById('app').addEventListener('click', e => {
     case 'go-categories':  go('categories');  break;
     case 'go-stats':       go('stats');       break;
     case 'go-guide':       go('guide');       break;
+    case 'go-numbers':     go('numbers');     break;
     case 'go-exam': {
       const es = Store.loadExamSession();
       if (isValidExamSession(es)) {
