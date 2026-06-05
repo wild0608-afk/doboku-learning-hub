@@ -1059,6 +1059,66 @@ function renderExamResult() {
     ? `<div class="exam-pass-badge pass">✅ 合格ライン達成</div>`
     : `<div class="exam-pass-badge fail">📚 合格ライン未達（目安 35点以上）</div>`;
 
+  // ── review block ────────────────────────────────────────────────────
+  const REVIEW_LINES = [
+    { cat: '宅建業法',    n: 20, weakLine: 12 },
+    { cat: '権利関係',    n: 14, weakLine:  8 },
+    { cat: '法令上の制限', n:  8, weakLine:  4 },
+    { cat: '税・その他',   n:  8, weakLine:  4 },
+  ];
+
+  const catScores = {};
+  REVIEW_LINES.forEach(({ cat }) => {
+    const qIds = App.quizQuestions.filter(q => q.category === cat).map(q => q.id);
+    catScores[cat] = App.sessionResults.filter(r => qIds.includes(r.qid) && r.correct).length;
+  });
+
+  const weakCats = REVIEW_LINES
+    .filter(({ cat, weakLine }) => catScores[cat] <= weakLine)
+    .map(({ cat }) => cat);
+
+  const scoreLevel = correct >= 35 ? 'pass' : correct >= 30 ? 'near' : correct >= 25 ? 'work' : 'base';
+  const SCORE_COMMENT = {
+    pass: '合格圏です。この水準を維持しましょう。',
+    near: '合格まであと少しです。弱点分野の集中強化が鍵です。',
+    work: '基礎固めが必要な状態です。各分野を丁寧に見直しましょう。',
+    base: '全体的な見直しが必要です。一問一問の解説を丁寧に確認しましょう。',
+  };
+
+  const nextActions = [];
+  if (wrong === 0) {
+    nextActions.push('全問正解です。この調子で維持しましょう。');
+  } else if (weakCats.length === 0 && correct >= 35) {
+    nextActions.push('苦手を残さないよう、間違えた問題だけ確認しましょう。');
+  } else {
+    nextActions.push('まずは間違えた問題を復習しましょう。');
+  }
+  if (weakCats.includes('法令上の制限') || weakCats.includes('税・その他')) {
+    nextActions.push('数字・期限・割合は重要数字マップで整理すると効果的です。');
+  }
+  if (weakCats.includes('宅建業法') || weakCats.includes('権利関係')) {
+    nextActions.push('似た制度の違いは混同ポイント整理で確認しましょう。');
+  }
+
+  const weakTagsHtml = weakCats.length > 0
+    ? `<div class="exam-review-tags">
+        <span class="exam-review-tag-label">⚠️ 優先復習：</span>
+        ${weakCats.map(c => `<span class="exam-review-tag">${escapeHTML(c)}</span>`).join('')}
+      </div>`
+    : '';
+
+  const reviewBlock = `
+  <div style="padding:0 16px 12px">
+    <div class="exam-review">
+      <div class="exam-review-title">📋 今回のレビュー</div>
+      <div class="exam-review-comment">${SCORE_COMMENT[scoreLevel]}</div>
+      ${weakTagsHtml}
+      <ul class="exam-review-actions">
+        ${nextActions.map(a => `<li>${escapeHTML(a)}</li>`).join('')}
+      </ul>
+    </div>
+  </div>`;
+
   return `
   <div class="screen">
     <div class="result-hero">
@@ -1087,6 +1147,7 @@ function renderExamResult() {
         ${catRows}
       </div>
     </div>
+    ${reviewBlock}
     <div class="result-actions">
       ${reviewBtn}
       <button class="res-btn secondary" data-action="go-exam">
