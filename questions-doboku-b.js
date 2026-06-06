@@ -1,0 +1,1 @@
+const QUESTIONS_DOBOKU_B = [];

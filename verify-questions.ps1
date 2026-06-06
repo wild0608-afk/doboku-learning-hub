@@ -1,11 +1,11 @@
 ﻿#Requires -Version 5.0
 <#
 .SYNOPSIS
-    Takken Learning Hub - 問題データ検証スクリプト (Level 1)
+    1級土木施工管理 Learning Hub - 問題データ検証スクリプト (Level 1)
     PowerShell 単体動作 / Node.js 不要 / 正規表現ベース
 
 .DESCRIPTION
-    questions-takken.js / questions-rights.js / questions-laws.js / questions-tax.js
+    questions-doboku-a.js / questions-doboku-b.js / questions-doboku-c.js / questions-doboku-d.js
     をテキストとして読み込み、正規表現で以下を検証します。
       1. ファイル存在確認
       2. ファイルごとの id 数カウント
@@ -42,10 +42,10 @@ function Add-Error([string]$msg)   { $script:AllErrors.Add($msg) }
 function Add-Warning([string]$msg) { $script:AllWarnings.Add($msg) }
 
 $TargetFiles = @(
-    "questions-takken.js",
-    "questions-rights.js",
-    "questions-laws.js",
-    "questions-tax.js"
+    "questions-doboku-a.js",
+    "questions-doboku-b.js",
+    "questions-doboku-c.js",
+    "questions-doboku-d.js"
 )
 
 # ──────────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ $TargetFiles = @(
 # ──────────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor Cyan
-Write-Host "  Takken Learning Hub - 問題データ検証スクリプト (Level 1)" -ForegroundColor Cyan
+Write-Host "  1級土木施工管理 Learning Hub - 問題データ検証スクリプト (Level 1)" -ForegroundColor Cyan
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host "  PowerShell 単体動作 / Node.js 不要" -ForegroundColor DarkGray
 Write-Host "  実行: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor DarkGray
@@ -145,7 +145,7 @@ foreach ($fileName in $TargetFiles) {
     }
 
     # ── 旧形式 / 新形式 ID の内訳
-    $newIdCnt = @($fileIds | Where-Object { $_ -match '^TK-' }).Count
+    $newIdCnt = @($fileIds | Where-Object { $_ -match '^DK-' }).Count
     $oldIdCnt = $fileIds.Count - $newIdCnt
 
     $FileSummaries[$fileName] = @{
@@ -163,13 +163,13 @@ foreach ($fileName in $TargetFiles) {
     # ── 表示
     Write-Host ""
     Write-Host "  ── $fileName ──" -ForegroundColor Cyan
-    Write-Host ("    id 数 (合計)          : {0,3}  (TK-形式: {1}  旧形式: {2})" `
+    Write-Host ("    id 数 (合計)          : {0,3}  (DK-形式: {1}  旧形式: {2})" `
                 -f $fileIds.Count, $newIdCnt, $oldIdCnt) -ForegroundColor White
     Write-Host ("    question 数           : {0,3}" -f $qCount)   -ForegroundColor White
     Write-Host ("    options 数            : {0,3}" -f $optCount) -ForegroundColor White
     Write-Host ("    correct 数            : {0,3}" -f $corCount) -ForegroundColor White
     Write-Host ("    explanation 数        : {0,3}" -f $expCount) -ForegroundColor White
-    Write-Host ("    verified 数           : {0,3}  (TK-形式 {1} 問が期待値)" `
+    Write-Host ("    verified 数           : {0,3}  (DK-形式 {1} 問が期待値)" `
                 -f $verCount, $newIdCnt) -ForegroundColor White
     Write-Host ("    category 出現数       : {0,3}" -f $catCount) -ForegroundColor White
 
@@ -182,17 +182,17 @@ foreach ($fileName in $TargetFiles) {
 
     # verified は TK-形式ID 問にのみ必須（不足はエラー）
     if ($verCount -lt $newIdCnt) {
-        Add-Error "$fileName : verified 数($verCount) が TK-形式ID 数($newIdCnt) より少ない（新形式IDには verified が必須）"
+        Add-Error "$fileName : verified 数($verCount) が DK-形式ID 数($newIdCnt) より少ない（新形式IDには verified が必須）"
     }
     if ($oldIdCnt -gt 0) {
         Write-Host ("    ※ 旧形式ID {0} 問には verified なし（仕様通り）" -f $oldIdCnt) -ForegroundColor DarkGray
     }
 
-    # ── 新形式ID 形式チェック（^TK-\d{4}-\d{4}$ 以外はエラー）
+    # ── 新形式ID 形式チェック（^DK-\d{4}-\d{4}$ 以外はエラー）
     foreach ($idVal in $fileIds) {
-        if ($idVal -match '^TK') {
-            if ($idVal -notmatch '^TK-\d{4}-\d{4}$') {
-                Add-Error "$fileName : 新形式IDの形式が不正です: '$idVal' (TK-YYYY-NNNN 形式であるべき)"
+        if ($idVal -match '^DK') {
+            if ($idVal -notmatch '^DK-\d{4}-\d{4}$') {
+                Add-Error "$fileName : 新形式IDの形式が不正です: '$idVal' (DK-YYYY-NNNN 形式であるべき)"
             }
         }
     }

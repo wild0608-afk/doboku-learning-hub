@@ -1,33 +1,33 @@
 const CHAPTER_SIZE = 25;
 
 const CHAPTER_LABELS = {
-  '宅建業法': [
-    '免許・宅建士・媒介・重要事項説明',
-    '手付金・自ら売主制限・事務所規制',
-    '業務規制・監督処分・その他',
-    '書面・8種規制・保証金・届出規制',
-    '業務規制・総合',
+  '土工・基礎・舗装': [
+    '土の性質・土工基礎・盛土・切土',
+    '法面・軟弱地盤対策・土留め',
+    '直接基礎・杭基礎・ケーソン基礎',
+    '舗装の種類・構造・施工',
+    '土工・基礎・舗装 総合',
   ],
-  '権利関係': [
-    '民法総則・物権・担保物権・債権',
-    '意思表示・代理・相続・不法行為',
-    '借地借家・共有・保証・その他',
-    '時効・担保・相続・借地借家の応用',
-    '不法行為・権利総合',
+  'コンクリート・構造物': [
+    'コンクリートの材料・配合設計',
+    '打設・養生・品質管理',
+    '鉄筋工・型枠・支保工',
+    '劣化・ひび割れ・補修・構造物全般',
+    'コンクリート・構造物 総合',
   ],
-  '法令上の制限': [
-    '都市計画法・開発許可・建築基準法基礎',
-    '建築基準法詳細・農地法・区画整理',
-    '国土利用計画法・盛土規制・各種制限',
-    '開発手続・建築規制・農地・各種制限の応用',
-    '建築規制・農地・開発許可・各種制限の総合',
+  '工程・品質・施工管理': [
+    '施工計画・施工体制・施工記録',
+    'ネットワーク工程表・バーチャート',
+    '品質管理・試験・検査',
+    '環境管理・建設副産物・廃棄物',
+    '工程・品質・施工管理 総合',
   ],
-  '税・その他': [
-    '不動産税制（取得税・固定資産税・印紙税）',
-    '譲渡所得・鑑定評価・支援機構・景表法',
-    '住宅ローン控除・相続税・土地建物知識',
-    '税制詳細・鑑定評価・支援機構・広告規制',
-    '税制・鑑定評価・支援機構・広告規制の総合',
+  '法規・安全管理': [
+    '建設業法・監理技術者・施工体制台帳',
+    '労働安全衛生法・特定建設作業',
+    '道路法・河川法・その他関連法規',
+    '足場・型枠・掘削作業の安全管理',
+    '法規・安全管理 総合',
   ],
 };
 
@@ -52,7 +52,7 @@ const App = {
 
 // ── STORAGE ────────────────────────────────────────────────────────────
 const Store = {
-  KEY: 'takken_hub_v1',
+  KEY: 'doboku1_hub_v1',
 
   load() {
     try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); }
@@ -260,10 +260,10 @@ function startQuiz(mode, category, chapterStart) {
     }
     case 'exam': {
       const EXAM_ALLOC = [
-        { cat: '宅建業法',    n: 20 },
-        { cat: '権利関係',    n: 14 },
-        { cat: '法令上の制限', n: 8  },
-        { cat: '税・その他',   n: 8  },
+        { cat: '土工・基礎・舗装',      n: 15 },
+        { cat: 'コンクリート・構造物',   n: 15 },
+        { cat: '工程・品質・施工管理',   n: 10 },
+        { cat: '法規・安全管理',        n: 10 },
       ];
       qs = [];
       for (const { cat, n } of EXAM_ALLOC) {
@@ -388,7 +388,7 @@ function renderHome() {
     const h = hist[q.id];
     return h && h.attempts > 0 && h.correct < h.attempts;
   }).length;
-  const CAT_ICONS = { '権利関係':'⚖️', '宅建業法':'🏢', '法令上の制限':'📋', '税・その他':'💴' };
+  const CAT_ICONS = { '土工・基礎・舗装':'⛏️', 'コンクリート・構造物':'🏗️', '工程・品質・施工管理':'📊', '法規・安全管理':'⚖️' };
   const catAll = CATEGORIES.map(cat => {
     const qs  = QUESTIONS.filter(q => q.category === cat);
     const att = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
@@ -400,8 +400,8 @@ function renderHome() {
     ? catStats.slice().sort((a, b) => a.rate - b.rate)[0]
     : null;
 
-  // 宅建試験日（毎年10月第3日曜日。翌年更新時はここ1行を変更）
-  const EXAM_DATE = new Date('2026-10-18');
+  // 1級土木施工管理技士 第一次検定（毎年7月第2日曜日。翌年更新時はここ1行を変更）
+  const EXAM_DATE = new Date('2026-07-12');
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
   const undone     = QUESTIONS.length - done;
@@ -450,11 +450,11 @@ function renderHome() {
       <div class="home-hero-pattern" aria-hidden="true"></div>
       <div class="home-hero-top">
         <div class="home-logo-wrap">
-          <span style="font-size:30px;line-height:1">🏠</span>
+          <span style="font-size:30px;line-height:1">🏗️</span>
         </div>
         <div class="home-hero-titles">
-          <div class="home-title">Takken Learning Hub</div>
-          <div class="home-subtitle">宅建試験の合格を、ここから一緒に。</div>
+          <div class="home-title">1級土木施工管理 Learning Hub</div>
+          <div class="home-subtitle">1級土木施工管理技士の合格を、ここから一緒に。</div>
         </div>
         <div class="home-hero-bell" aria-hidden="true">🔔</div>
       </div>
@@ -650,10 +650,10 @@ function renderHome() {
 function renderCategories() {
   const hist = Store.history();
   const icons = {
-    '権利関係': '⚖️',
-    '宅建業法': '🏢',
-    '法令上の制限': '📋',
-    '税・その他': '💴',
+    '土工・基礎・舗装': '⛏️',
+    'コンクリート・構造物': '🏗️',
+    '工程・品質・施工管理': '📊',
+    '法規・安全管理': '⚖️',
   };
 
   const cards = CATEGORIES.map(cat => {
@@ -700,8 +700,8 @@ function renderCategoryChapters() {
   const cat  = App.selectedCategory;
   const hist = Store.history();
   const icons = {
-    '権利関係': '⚖️', '宅建業法': '🏢',
-    '法令上の制限': '📋', '税・その他': '💴',
+    '土工・基礎・舗装': '⛏️', 'コンクリート・構造物': '🏗️',
+    '工程・品質・施工管理': '📊', '法規・安全管理': '⚖️',
   };
 
   const allQs   = QUESTIONS.filter(q => q.category === cat);
@@ -793,18 +793,18 @@ function renderExamSetup() {
     </div>
     <div style="padding:16px">
       <div class="stats-card" style="margin-bottom:16px">
-        <div class="stats-card-title">🏆 本試験風模擬試験</div>
+        <div class="stats-card-title">🏆 模擬試験</div>
         <div style="font-size:14px;line-height:1.85;color:var(--text-mid);margin-bottom:10px">
-          本試験の出題配分に近い50問を出題します。
+          4分野から50問を出題します。
         </div>
         <div class="exam-alloc-grid">
-          <div class="exam-alloc-item"><span>🏢 宅建業法</span><strong>20問</strong></div>
-          <div class="exam-alloc-item"><span>⚖️ 権利関係</span><strong>14問</strong></div>
-          <div class="exam-alloc-item"><span>📋 法令上の制限</span><strong>8問</strong></div>
-          <div class="exam-alloc-item"><span>💴 税・その他</span><strong>8問</strong></div>
+          <div class="exam-alloc-item"><span>⛏️ 土工・基礎・舗装</span><strong>15問</strong></div>
+          <div class="exam-alloc-item"><span>🏗️ コンクリート・構造物</span><strong>15問</strong></div>
+          <div class="exam-alloc-item"><span>📊 工程・品質・施工管理</span><strong>10問</strong></div>
+          <div class="exam-alloc-item"><span>⚖️ 法規・安全管理</span><strong>10問</strong></div>
         </div>
         <div style="margin-top:10px;padding:8px 12px;background:var(--g50);border-radius:var(--r-sm);font-size:13px;color:var(--text-mid)">
-          合格ライン目安：<strong style="color:var(--g700)">35点以上 / 50点満点</strong>
+          合格ライン目安：<strong style="color:var(--g700)">30点以上 / 50点満点（60%）</strong>
         </div>
       </div>
       <div class="section-label">タイマーを選ぶ</div>
@@ -1018,14 +1018,14 @@ function renderExamResult() {
   const wrong    = answered - correct;
   const unanswered = total - answered;
   const rate     = Math.round(correct / total * 100);
-  const PASS_LINE = 35;
+  const PASS_LINE = 30;
   const passed   = correct >= PASS_LINE;
 
   const EXAM_ALLOC = [
-    { cat: '宅建業法',    n: 20, icon: '🏢' },
-    { cat: '権利関係',    n: 14, icon: '⚖️' },
-    { cat: '法令上の制限', n: 8,  icon: '📋' },
-    { cat: '税・その他',   n: 8,  icon: '💴' },
+    { cat: '土工・基礎・舗装',      n: 15, icon: '⛏️' },
+    { cat: 'コンクリート・構造物',   n: 15, icon: '🏗️' },
+    { cat: '工程・品質・施工管理',   n: 10, icon: '📊' },
+    { cat: '法規・安全管理',        n: 10, icon: '⚖️' },
   ];
 
   const catRows = EXAM_ALLOC.map(({ cat, n, icon }) => {
@@ -1057,14 +1057,14 @@ function renderExamResult() {
 
   const passLabel = passed
     ? `<div class="exam-pass-badge pass">✅ 合格ライン達成</div>`
-    : `<div class="exam-pass-badge fail">📚 合格ライン未達（目安 35点以上）</div>`;
+    : `<div class="exam-pass-badge fail">📚 合格ライン未達（目安 30点以上・60%）</div>`;
 
   // ── review block ────────────────────────────────────────────────────
   const REVIEW_LINES = [
-    { cat: '宅建業法',    n: 20, weakLine: 12 },
-    { cat: '権利関係',    n: 14, weakLine:  8 },
-    { cat: '法令上の制限', n:  8, weakLine:  4 },
-    { cat: '税・その他',   n:  8, weakLine:  4 },
+    { cat: '土工・基礎・舗装',      n: 15, weakLine:  9 },
+    { cat: 'コンクリート・構造物',   n: 15, weakLine:  9 },
+    { cat: '工程・品質・施工管理',   n: 10, weakLine:  6 },
+    { cat: '法規・安全管理',        n: 10, weakLine:  6 },
   ];
 
   const catScores = {};
@@ -1077,7 +1077,7 @@ function renderExamResult() {
     .filter(({ cat, weakLine }) => catScores[cat] <= weakLine)
     .map(({ cat }) => cat);
 
-  const scoreLevel = correct >= 35 ? 'pass' : correct >= 30 ? 'near' : correct >= 25 ? 'work' : 'base';
+  const scoreLevel = correct >= 30 ? 'pass' : correct >= 25 ? 'near' : correct >= 20 ? 'work' : 'base';
   const SCORE_COMMENT = {
     pass: '合格圏です。この水準を維持しましょう。',
     near: '合格まであと少しです。弱点分野の集中強化が鍵です。',
@@ -1093,11 +1093,11 @@ function renderExamResult() {
   } else {
     nextActions.push('まずは間違えた問題を復習しましょう。');
   }
-  if (weakCats.includes('法令上の制限') || weakCats.includes('税・その他')) {
-    nextActions.push('数字・期限・割合は重要数字マップで整理すると効果的です。');
+  if (weakCats.includes('法規・安全管理') || weakCats.includes('工程・品質・施工管理')) {
+    nextActions.push('数字・期限・基準値は重要数字マップで整理すると効果的です。');
   }
-  if (weakCats.includes('宅建業法') || weakCats.includes('権利関係')) {
-    nextActions.push('似た制度の違いは混同ポイント整理で確認しましょう。');
+  if (weakCats.includes('土工・基礎・舗装') || weakCats.includes('コンクリート・構造物')) {
+    nextActions.push('似た工法・材料の違いは混同ポイント整理で確認しましょう。');
   }
 
   const weakTagsHtml = weakCats.length > 0
@@ -1184,8 +1184,8 @@ function renderStats() {
   const weekDone = week.filter(d => d.done).length;
 
   const icons = {
-    '権利関係': '⚖️', '宅建業法': '🏢',
-    '法令上の制限': '📋', '税・その他': '💴',
+    '土工・基礎・舗装': '⛏️', 'コンクリート・構造物': '🏗️',
+    '工程・品質・施工管理': '📊', '法規・安全管理': '⚖️',
   };
 
   // 苦手問題 TOP5（誤答数降順）
@@ -1332,17 +1332,17 @@ function renderGuide() {
     {
       icon: '📚',
       title: '分野別学習',
-      body: '権利関係・宅建業法・法令上の制限・税その他の4分野から選んで学習できます。各分野は25問ずつの章に分かれており、進捗を確認しながら進められます。',
+      body: '土工・基礎・舗装／コンクリート・構造物／工程・品質・施工管理／法規・安全管理の4分野から選んで学習できます。各分野は25問ずつの章に分かれており、進捗を確認しながら進められます。',
     },
     {
       icon: '🎲',
       title: 'ランダムテスト',
-      body: '全500問からランダムに10・20・30問を出題します。分野を横断した本番に近い練習ができます。',
+      body: '全問題からランダムに10・20・30問を出題します。分野を横断した本番に近い練習ができます。',
     },
     {
       icon: '🏆',
-      title: '本格模擬試験',
-      body: '本試験と同じ50問・分野別配分（宅建業法20問・権利関係14問・法令上の制限8問・税・その他8問）で実力確認できます。試験直前の総仕上げに活用しましょう。',
+      title: '模擬試験',
+      body: '4分野から50問（土工・基礎・舗装15問・コンクリート・構造物15問・工程・品質・施工管理10問・法規・安全管理10問）を出題します。合格ライン目安は30点以上（60%）です。',
     },
     {
       icon: '⏱️',
@@ -1357,7 +1357,7 @@ function renderGuide() {
     {
       icon: '📋',
       title: '模試の採点結果',
-      body: '模試終了後に正解数・正答率・分野別の正解数を確認できます。35点以上が合格の目安です。間違えた問題はその場でまとめて復習できます。また、得点状況をもとに優先復習分野と次にやることも自動で表示されます。',
+      body: '模試終了後に正解数・正答率・分野別の正解数を確認できます。30点以上（60%）が合格の目安です。間違えた問題はその場でまとめて復習できます。また、得点状況をもとに優先復習分野と次にやることも自動で表示されます。',
     },
     {
       icon: '🔄',
@@ -1382,12 +1382,12 @@ function renderGuide() {
     {
       icon: '🔢',
       title: '重要数字マップ',
-      body: '頻出の数字・期限・割合を分野別に整理できます。試験直前の確認や、数字が混同しやすいときに使います。分野を選んでカード形式で確認できます。',
+      body: '1級土木施工管理技士試験に頻出の数値・基準・期限を分野別に整理できます。試験直前の確認や、数字が混同しやすいときに使います。分野を選んでカード形式で確認できます。',
     },
     {
       icon: '🧩',
       title: '混同ポイント整理',
-      body: '35条書面と37条書面など、似た制度の違いを左右比較で確認できます。知っているのに間違えやすい論点の整理に使います。',
+      body: '似た工法・材料・制度の違いを左右比較で確認できます。知っているのに間違えやすい論点の整理に使います。',
     },
     {
       icon: '🗓️',
@@ -1402,12 +1402,12 @@ function renderGuide() {
     {
       icon: '📚',
       title: '分野・章ごとに学ぶ',
-      body: '分野別学習では、各分野をさらに「第1章」〜「第5章」に分けて学習できます。特定の章を集中的に学ぶことで、苦手な単元を効率よく攻略できます。「全章」を選ぶと、その分野の全125問をまとめて出題します。',
+      body: '分野別学習では、各分野をさらに章に分けて学習できます。特定の章を集中的に学ぶことで、苦手な単元を効率よく攻略できます。「全章」を選ぶと、その分野の全問をまとめて出題します。',
     },
     {
       icon: '🧪',
       title: 'ベータ版について',
-      body: '本アプリは現在ベータ版です。問題・解説の内容は随時改善・追加されます。現在500問収録しています。お気づきの点があればフィードバックをお寄せください。',
+      body: '本アプリは現在ベータ版です。社内教育用として運用しています。問題・解説の内容は随時改善・追加されます。お気づきの点があればフィードバックをお寄せください。',
     },
   ];
 
@@ -1435,213 +1435,105 @@ function renderGuide() {
 function renderNumbers() {
   const data = [
     {
-      category: '宅建業法',
-      label: '媒介契約の有効期間（専任・専属専任）',
-      value: '3ヶ月以内',
-      note: '依頼者からの申出があれば更新できます。一般媒介にこの制限はありません。',
+      category: '土工・基礎・舗装',
+      label: 'トラフィカビリティ（普通建設機械）',
+      value: 'コーン指数 qc ≥ 400 kN/m²',
+      note: 'コーン指数が低いと重機が走行できません。湿地用ブルドーザーは 200 kN/m² 以上。',
     },
     {
-      category: '宅建業法',
-      label: '専属専任媒介：業務報告義務',
-      value: '1週間に1回以上',
-      note: '指定流通機構への登録は契約から5日以内です。',
+      category: '土工・基礎・舗装',
+      label: '盛土の締固め度',
+      value: '締固め度 ≥ 90%',
+      note: '締固め度 = 現場の乾燥密度 ÷ 最大乾燥密度 × 100%。路床・路体で管理基準が異なる場合があります。',
     },
     {
-      category: '宅建業法',
-      label: '専任媒介：業務報告義務',
-      value: '2週間に1回以上',
-      note: '指定流通機構への登録は契約から7日以内です。',
+      category: '土工・基礎・舗装',
+      label: 'アスファルト舗装 初転圧温度',
+      value: '110〜140℃',
+      note: '温度が下がりすぎると転圧不良になります。二次転圧は70〜90℃が目安。',
     },
     {
-      category: '宅建業法',
-      label: 'クーリングオフの行使期限',
-      value: '書面告知から8日以内',
-      note: '事務所等以外で申込み・契約した場合に問題になります。',
+      category: '土工・基礎・舗装',
+      label: 'アスファルト舗装 交通開放温度',
+      value: '舗装表面温度 50℃以下',
+      note: '舗装表面温度が50℃以下になってから交通開放します。',
     },
     {
-      category: '宅建業法',
-      label: '営業保証金',
-      value: '本店1,000万円 / 支店ごとに500万円',
-      note: '供託所に供託します。保証協会とは金額が違います。',
+      category: 'コンクリート・構造物',
+      label: 'コンクリート 水セメント比の上限',
+      value: '原則 65% 以下',
+      note: '耐久性確保のための基本ルール。海洋環境など厳しい条件ではさらに低く設定します。',
     },
     {
-      category: '宅建業法',
-      label: '弁済業務保証金分担金',
-      value: '本店60万円 / 支店ごとに30万円',
-      note: '保証協会に納付します。営業保証金との混同に注意。',
+      category: 'コンクリート・構造物',
+      label: '寒中コンクリート 養生温度下限',
+      value: '打込み後 5℃ 以上を保持',
+      note: '5℃を下回ると初期凍害の危険があります。普通セメントでの養生期間目安は5日以上。',
     },
     {
-      category: '宅建業法',
-      label: '保証協会加入時の分担金納付期限',
-      value: '加入しようとする日まで',
-      note: '保証協会に加入する前に分担金を納付します。',
+      category: 'コンクリート・構造物',
+      label: '暑中コンクリート 打込み温度上限',
+      value: '打込み時 35℃ 以下',
+      note: '35℃を超えるとスランプ低下・急速乾燥・強度低下のリスクが高まります。',
     },
     {
-      category: '宅建業法',
-      label: '支店設置後の分担金納付期限',
-      value: '2週間以内',
-      note: '新たに事務所を設置した日から2週間以内です。',
+      category: 'コンクリート・構造物',
+      label: 'コンクリート 1層の打込み高さ（内部振動機）',
+      value: '40〜50cm 以下',
+      note: '振動機の挿入間隔は40〜50cm以下、挿入時間は5〜15秒が目安です。',
     },
     {
-      category: '宅建業法',
-      label: '帳簿の保存期間',
-      value: '閉鎖後5年 / 新築住宅売主は10年',
-      note: '帳簿は各事業年度末に閉鎖します。',
+      category: '工程・品質・施工管理',
+      label: '施工体制台帳 作成義務（下請け総額）',
+      value: '4,500万円以上（建築一式：7,000万円以上）',
+      note: '特定建設業者が元請けとして一定金額以上を下請けに出す場合に作成義務が発生します。',
     },
     {
-      category: '宅建業法',
-      label: '従業者名簿の保存期間',
-      value: '最終記載から10年',
-      note: '各事務所に備え付けます。',
+      category: '工程・品質・施工管理',
+      label: '施工体制台帳 保存期間',
+      value: '工事目的物の引き渡しから 10年',
+      note: '完成後も長期保存が必要です。',
     },
     {
-      category: '宅建業法',
-      label: '手付金等の保全措置（未完成物件）',
-      value: '5%超または1,000万円超',
-      note: '自ら売主の8種規制。受領前に保全措置が必要です。',
+      category: '工程・品質・施工管理',
+      label: '産業廃棄物管理票（マニフェスト）保存期間',
+      value: '5年間',
+      note: '排出事業者・収集運搬業者・処分業者それぞれが5年間保存する義務があります。',
     },
     {
-      category: '宅建業法',
-      label: '手付金等の保全措置（完成物件）',
-      value: '10%超または1,000万円超',
-      note: '完成物件は未完成物件より基準が緩くなります。',
+      category: '法規・安全管理',
+      label: '足場 作業床の墜落防止（設置義務高さ）',
+      value: '高さ 2m 以上の箇所',
+      note: '高さ2m以上の作業床の縁には、高さ85cm以上の手すりと中さん等が必要です。',
     },
     {
-      category: '法令上の制限',
-      label: '農地法3条：許可権者',
-      value: '農業委員会',
-      note: '農地を農地のまま権利移動する場合です。',
+      category: '法規・安全管理',
+      label: '型枠支保工 作業主任者の選任義務',
+      value: '支柱高さ 3.5m 以上',
+      note: '型枠支保工の高さが3.5m以上の場合、型枠支保工の組立て等作業主任者の選任が必要です。',
     },
     {
-      category: '法令上の制限',
-      label: '農地法4条：自己転用',
-      value: '農地を農地以外にする',
-      note: '所有者が自分の農地を転用する場合です。',
+      category: '法規・安全管理',
+      label: '建設業法 主任技術者・監理技術者 専任義務',
+      value: '請負金額 4,000万円以上（建築一式：8,000万円以上）',
+      note: '公共性のある施設または多数の者が利用する施設の建設工事が対象。専任の技術者が必要です。',
     },
     {
-      category: '法令上の制限',
-      label: '農地法5条：転用目的の権利移動',
-      value: '転用＋権利移動',
-      note: '売買などで権利を移し、農地以外にする場合です。',
+      category: '法規・安全管理',
+      label: '特定建設作業 騒音規制 作業時間',
+      value: '7:00〜22:00、1日10時間以内',
+      note: '指定地域内での特定建設作業は深夜（22時〜翌7時）原則禁止。日曜・休日も禁止です。',
     },
     {
-      category: '法令上の制限',
-      label: '農地法4条・5条：許可権者',
-      value: '原則、都道府県知事等',
-      note: '市街化区域内の農地では、あらかじめ農業委員会へ届け出れば許可は不要です。',
-    },
-    {
-      category: '法令上の制限',
-      label: '国土法 事後届出（市街化区域）',
-      value: '2,000㎡以上',
-      note: '一定規模以上の土地取引は、契約後に届出が必要です。',
-    },
-    {
-      category: '法令上の制限',
-      label: '国土法 事後届出（市街化調整区域・非線引区域）',
-      value: '5,000㎡以上',
-      note: '市街化区域より広い面積基準です。',
-    },
-    {
-      category: '法令上の制限',
-      label: '国土法 事後届出（都市計画区域外）',
-      value: '10,000㎡以上',
-      note: '1ヘクタール以上の土地取引で届出対象になります。',
-    },
-    {
-      category: '税・その他',
-      label: '固定資産税の免税点（土地）',
-      value: '30万円未満',
-      note: '課税標準額が30万円未満の場合は課税されません。',
-    },
-    {
-      category: '税・その他',
-      label: '固定資産税の標準税率',
-      value: '1.4%',
-      note: '市町村が課税します。宅建では都市計画税との混同に注意。',
-    },
-    {
-      category: '税・その他',
-      label: '都市計画税の制限税率',
-      value: '0.3%',
-      note: '市街化区域内の土地・家屋などが対象になります。',
-    },
-    {
-      category: '税・その他',
-      label: '小規模住宅用地の特例',
-      value: '固定資産税 1/6 / 都市計画税 1/3',
-      note: '住宅1戸につき200㎡以下の部分です。',
-    },
-    {
-      category: '税・その他',
-      label: '一般住宅用地の特例',
-      value: '固定資産税 1/3 / 都市計画税 2/3',
-      note: '200㎡を超える住宅用地部分です。',
-    },
-    {
-      category: '税・その他',
-      label: '3,000万円特別控除',
-      value: '所有期間要件なし',
-      note: '居住用財産の譲渡で使う特例です。居住期間の長短は問いません。',
-    },
-    {
-      category: '税・その他',
-      label: '不動産取得税の免税点（土地）',
-      value: '10万円未満',
-      note: '家屋（新築・増改築）は23万円未満、売買等による取得は12万円未満で免税点になります。',
-    },
-    {
-      category: '権利関係',
-      label: '消滅時効（債権・一般）',
-      value: '知った時から5年 / 権利行使できる時から10年',
-      note: 'どちらか先に到来した時点で時効が完成します。',
-    },
-    {
-      category: '権利関係',
-      label: '所有権の取得時効',
-      value: '10年 / 20年',
-      note: '善意無過失なら10年、それ以外は20年で取得時効が完成します。',
-    },
-    {
-      category: '権利関係',
-      label: '取消権の期間制限',
-      value: '追認できる時から5年 / 行為時から20年',
-      note: 'どちらか先に経過すると取消権は消滅します。',
-    },
-    {
-      category: '権利関係',
-      label: '即時取得：盗品・遺失物の回復期間',
-      value: '盗難・遺失から2年以内',
-      note: '被害者・遺失者は2年以内に限り、原則として回復請求できます。',
-    },
-    {
-      category: '権利関係',
-      label: '相続放棄・限定承認',
-      value: '知った時から3ヶ月以内',
-      note: '自己のために相続開始があったことを知った時から起算します。',
-    },
-    {
-      category: '権利関係',
-      label: '共有物の重大変更',
-      value: '共有者全員の同意',
-      note: '形状または効用の著しい変更を伴う場合です。管理は持分価格の過半数、保存行為は各共有者が単独でできます。',
-    },
-    {
-      category: '権利関係',
-      label: '区分所有法：建替え決議',
-      value: '区分所有者および議決権の各5分の4以上',
-      note: '建替えは特に重い決議要件です。',
-    },
-    {
-      category: '権利関係',
-      label: '区分所有法：規約の設定・変更・廃止',
-      value: '区分所有者および議決権の各4分の3以上',
-      note: '共用部分の重大変更や管理組合法人設立とも混同しやすい数字です。',
+      category: '法規・安全管理',
+      label: '掘削作業 地山の掘削面の高さと勾配（岩盤・堅固な地盤）',
+      value: '高さ 5m 未満：勾配 90° 以下',
+      note: '地盤の種類・掘削高さによって許容勾配が異なります。軟岩などは別基準があります。',
     },
   ];
 
-  const ORDER = ['宅建業法', '法令上の制限', '税・その他', '権利関係'];
-  const CAT_ICONS = { '宅建業法': '🏢', '法令上の制限': '📋', '税・その他': '💴', '権利関係': '⚖️' };
+  const ORDER = ['土工・基礎・舗装', 'コンクリート・構造物', '工程・品質・施工管理', '法規・安全管理'];
+  const CAT_ICONS = { '土工・基礎・舗装': '⛏️', 'コンクリート・構造物': '🏗️', '工程・品質・施工管理': '📊', '法規・安全管理': '⚖️' };
 
   const selected = App.numbersCategory;
 
@@ -1665,7 +1557,7 @@ function renderNumbers() {
         <div class="header-title">重要数字マップ</div>
       </div>
       <div class="numbers-body">
-        <div class="numbers-intro">宅建で混同しやすい数字・期限・割合を整理します。</div>
+        <div class="numbers-intro">1級土木施工管理技士試験に頻出の数値・基準・期限を整理します。</div>
         <div class="numbers-cat-list">${catBtns}</div>
       </div>
     </div>`;
@@ -1698,88 +1590,68 @@ function renderNumbers() {
 function renderConfusion() {
   const data = [
     {
-      category: '宅建業法',
-      title: '35条書面 vs 37条書面',
-      leftLabel: '35条書面（重要事項説明書）',
-      rightLabel: '37条書面（契約書面）',
-      leftBody: '契約締結前に交付\n宅建士が説明する\n買主・借主に交付',
-      rightBody: '契約締結後、遅滞なく交付\n宅建士の記名が必要\n売主・買主など契約当事者に交付',
-      rememberPoint: '契約「前」が35条、契約「後」が37条。',
-      dangerPoint: '37条書面は説明義務までは不要。ただし宅建士の記名は必要です。',
+      category: '土工・基礎・舗装',
+      title: '盛土管理 vs 切土管理',
+      leftLabel: '盛土',
+      rightLabel: '切土',
+      leftBody: '材料の品質・含水比の管理が重要\n締固め度の確認（≥90%が目安）\n軟弱地盤では地盤改良が必要',
+      rightBody: '法面の安定勾配の確保が重要\n排水処理（切土面の雨水流出対策）\n地質に基づく勾配設定',
+      rememberPoint: '盛土は「締固め管理」、切土は「法面安定・排水管理」が主眼。',
+      dangerPoint: '締固め度の管理基準と切土法面勾配の許容値を混同しないこと。',
     },
     {
-      category: '宅建業法',
-      title: '営業保証金 vs 弁済業務保証金分担金',
-      leftLabel: '営業保証金',
-      rightLabel: '弁済業務保証金分担金',
-      leftBody: '本店1,000万円\n支店ごとに500万円\n供託所に供託',
-      rightBody: '本店60万円\n支店ごとに30万円\n保証協会に納付',
-      rememberPoint: '営業保証金は高額で供託所、分担金は保証協会に納付。',
-      dangerPoint: '金額だけでなく、供託先・納付先も混同しやすいポイントです。',
+      category: 'コンクリート・構造物',
+      title: '寒中コンクリート vs 暑中コンクリート',
+      leftLabel: '寒中コンクリート',
+      rightLabel: '暑中コンクリート',
+      leftBody: '打込み後 5℃ 以上を保持\n初期凍害の防止が目的\n養生期間を延長する（普通セメント5日以上）',
+      rightBody: '打込み時 35℃ 以下に抑制\nスランプ低下・急速乾燥の防止\n打込み後の急激な乾燥防止養生',
+      rememberPoint: '寒中は「温度を上げる管理（5℃以上）」、暑中は「温度を下げる管理（35℃以下）」。',
+      dangerPoint: '養生温度の目標値（5℃・35℃）を逆にしないこと。',
     },
     {
-      category: '法令上の制限',
-      title: '農地法3条 vs 農地法5条',
-      leftLabel: '農地法3条',
-      rightLabel: '農地法5条',
-      leftBody: '農地を農地のまま権利移動\n売買・賃貸などで所有権や使用権を移す\n許可権者は農業委員会',
-      rightBody: '転用目的で権利移動\n売買などで権利を移し、農地以外にする\n原則として都道府県知事等の許可',
-      rememberPoint: '3条は「農地のまま移す」、5条は「転用して移す」。',
-      dangerPoint: '5条は「転用」と「権利移動」がセット。自己転用だけなら4条です。',
+      category: 'コンクリート・構造物',
+      title: 'PCコンクリート vs RCコンクリート',
+      leftLabel: 'PCコンクリート',
+      rightLabel: 'RCコンクリート',
+      leftBody: 'PC鋼材に緊張力を与える\n引張応力を打ち消してひび割れを防ぐ\n長スパン・薄型断面が可能',
+      rightBody: '鉄筋がコンクリートの引張力を負担\n設計・施工が比較的シンプル\n一般的な構造物に広く使用',
+      rememberPoint: 'PCは「事前にプレストレス（圧縮力）を与える」、RCは「鉄筋で引張を負担」。',
+      dangerPoint: 'PC鋼材の緊張管理（プレテンション・ポストテンション）の違いを混同しないこと。',
     },
     {
-      category: '法令上の制限',
-      title: '市街化区域 vs 市街化調整区域',
-      leftLabel: '市街化区域',
-      rightLabel: '市街化調整区域',
-      leftBody: 'すでに市街地、またはおおむね10年以内に市街化を図る区域\n用途地域は原則として定める\n農地転用はあらかじめ農業委員会に届け出れば許可は不要',
-      rightBody: '市街化を抑制すべき区域\n用途地域は原則として定めない\n開発行為や建築が厳しく制限される',
-      rememberPoint: '市街化区域は「市街化を進める」、市街化調整区域は「市街化を抑える」。',
-      dangerPoint: '市街化調整区域でも絶対に建築不可ではありません。許可や例外が問題になります。',
+      category: '工程・品質・施工管理',
+      title: 'バーチャート vs ネットワーク工程表',
+      leftLabel: 'バーチャート',
+      rightLabel: 'ネットワーク工程表',
+      leftBody: '横軸に時間、縦軸に工種を記載\n視覚的に分かりやすく進捗管理が容易\nクリティカルパスの把握には不向き',
+      rightBody: 'イベント（丸）と作業（矢印）で表現\nクリティカルパスの特定が可能\nフロートの計算で余裕時間を把握できる',
+      rememberPoint: 'バーチャートは「見やすさ」、ネットワークは「クリティカルパス分析」に強み。',
+      dangerPoint: 'フリーフロートとトータルフロートの違いを混同しないこと（前者は後続に影響しない余裕）。',
     },
     {
-      category: '税・その他',
-      title: '固定資産税 vs 都市計画税',
-      leftLabel: '固定資産税',
-      rightLabel: '都市計画税',
-      leftBody: '土地・家屋・償却資産に課税\n標準税率は1.4%\n市町村が課税',
-      rightBody: '原則として市街化区域内の土地・家屋に課税\n制限税率は0.3%\n都市計画事業などの費用に充てる',
-      rememberPoint: '固定資産税は広く課税、都市計画税は市街化区域内が中心。',
-      dangerPoint: '固定資産税は標準税率1.4%、都市計画税は制限税率0.3%。数字を逆にしないこと。',
+      category: '法規・安全管理',
+      title: '主任技術者 vs 監理技術者',
+      leftLabel: '主任技術者',
+      rightLabel: '監理技術者',
+      leftBody: 'すべての建設工事で配置義務あり\n下請け契約金額に関わらず必要\n一般建設業者も配置する',
+      rightBody: '特定建設業者が元請けの場合に配置\n下請け総額が一定金額以上の場合\n監理技術者資格証が必要',
+      rememberPoint: '主任技術者はすべての工事、監理技術者は大規模工事の元請けに必要。',
+      dangerPoint: '専任義務の発生する請負金額の基準（4,000万円・8,000万円）を混同しないこと。',
     },
     {
-      category: '税・その他',
-      title: '小規模住宅用地 vs 一般住宅用地',
-      leftLabel: '小規模住宅用地',
-      rightLabel: '一般住宅用地',
-      leftBody: '住宅1戸につき200㎡以下の部分\n固定資産税は1/6\n都市計画税は1/3',
-      rightBody: '200㎡を超える住宅用地部分\n固定資産税は1/3\n都市計画税は2/3',
-      rememberPoint: '小規模の方が軽減が大きい。200㎡以下は固定資産税1/6。',
-      dangerPoint: '固定資産税と都市計画税で軽減割合が違います。1/6・1/3・2/3の混同に注意。',
-    },
-    {
-      category: '権利関係',
-      title: '取消し vs 無効',
-      leftLabel: '取消し',
-      rightLabel: '無効',
-      leftBody: 'いったん有効に成立する\n取消権者が取り消すと初めから無効扱い\n追認できる',
-      rightBody: '初めから効力がない\n原則として誰でも主張できる\n追認しても原則有効にはならない',
-      rememberPoint: '取消しは「取り消すまでは有効」、無効は「最初から効力なし」。',
-      dangerPoint: '制限行為能力者・詐欺・強迫は取消し。公序良俗違反などは無効として整理します。',
-    },
-    {
-      category: '権利関係',
-      title: '取得時効 vs 消滅時効',
-      leftLabel: '取得時効',
-      rightLabel: '消滅時効',
-      leftBody: '一定期間占有を続けると権利を取得\n所有権などで問題になる\n善意無過失10年、それ以外20年',
-      rightBody: '一定期間権利を行使しないと権利が消滅\n債権などで問題になる\n知った時から5年、権利行使できる時から10年',
-      rememberPoint: '取得時効は「持ち続けて得る」、消滅時効は「使わずに失う」。',
-      dangerPoint: '取得時効は占有の状態、消滅時効は権利を行使しない期間がポイントです。',
+      category: '法規・安全管理',
+      title: '特定建設業 vs 一般建設業',
+      leftLabel: '特定建設業',
+      rightLabel: '一般建設業',
+      leftBody: '元請けとして4,500万円以上を下請けに出す場合\n財産的基礎の要件が厳しい\n監理技術者の設置義務あり',
+      rightBody: '特定建設業以外のすべての建設業者\n財産的基礎の要件が緩い\n主任技術者の設置義務（全工事）',
+      rememberPoint: '特定建設業は「大きな下請け発注をする元請け向け」の許可区分。',
+      dangerPoint: '許可区分の違いと施工体制台帳の作成義務の発生要件を混同しないこと。',
     },
   ];
 
-  const ORDER = ['宅建業法', '法令上の制限', '税・その他', '権利関係'];
+  const ORDER = ['土工・基礎・舗装', 'コンクリート・構造物', '工程・品質・施工管理', '法規・安全管理'];
 
   const makeBody = text => escapeHTML(text).replace(/\n/g, '<br>');
 
@@ -1811,7 +1683,7 @@ function renderConfusion() {
       <div class="header-title">混同ポイント整理</div>
     </div>
     <div class="confusion-body">
-      <div class="confusion-intro">似た制度の違いを、左右で見比べて整理します。</div>
+      <div class="confusion-intro">似た工法・材料・制度の違いを、左右で見比べて整理します。</div>
       ${cards}
     </div>
   </div>`;

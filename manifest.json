@@ -1,10 +1,10 @@
 {
-  "name": "Takken Learning Hub",
-  "short_name": "Takken",
+  "name": "1級土木施工管理 Learning Hub",
+  "short_name": "土木LHub",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0B5D3B",
-  "theme_color": "#0B5D3B",
+  "background_color": "#1A3A5C",
+  "theme_color": "#1A3A5C",
   "icons": [
     {
       "src": "icon-512.png",
