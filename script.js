@@ -400,8 +400,8 @@ function renderHome() {
     ? catStats.slice().sort((a, b) => a.rate - b.rate)[0]
     : null;
 
-  // 1級土木施工管理技士 第一次検定（毎年7月第2日曜日。翌年更新時はここ1行を変更）
-  const EXAM_DATE = new Date('2026-07-12');
+  // 1級土木施工管理技士 第一次検定（翌年更新時はここ1行を変更。月は0始まりなので7月は6）
+  const EXAM_DATE = new Date(2026, 6, 5);
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
   const undone     = QUESTIONS.length - done;
