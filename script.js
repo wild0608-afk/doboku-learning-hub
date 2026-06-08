@@ -368,6 +368,7 @@ function render() {
     numbers:             renderNumbers,
     confusion:           renderConfusion,
     diagrams:            renderDiagrams,
+    course:              renderCourse,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -583,6 +584,11 @@ function renderHome() {
           <span class="btn-icon">📐</span>
           <span class="btn-label">図解で理解</span>
           <span class="btn-sub">図でつかむ重要論点</span>
+        </button>
+        <button class="menu-btn full" data-action="go-course">
+          <span class="btn-icon">📘</span>
+          <span class="btn-label">7日間コース</span>
+          <span class="btn-sub">何から始めるか迷わない学習導線</span>
         </button>
         <button class="menu-btn full" data-action="go-guide">
           <span class="btn-icon">📘</span>
@@ -1986,6 +1992,102 @@ function renderDiagrams() {
   </div>`;
 }
 
+// ── 7日間コース ────────────────────────────────────────────────────────
+function renderCourse() {
+  const days = [
+    {
+      day: 'Day 1',
+      title: '土工・基礎の全体像',
+      aim: '土の動きと地盤・法面の基本をつかむ',
+      read: '図解で理解「盛土・切土・法面保護」「土量変化率の考え方」',
+      solve: '土工・基礎・舗装を中心に10問',
+      review: '重要数字マップ「トラフィカビリティ」',
+      point: '土木はまず、土を掘る・運ぶ・締め固める流れを押さえる。',
+    },
+    {
+      day: 'Day 2',
+      title: '舗装の基本',
+      aim: '舗装の層構成と路盤・路床の役割を整理する',
+      read: '図解で理解「舗装の層構成」',
+      solve: '舗装・材料系を中心に10問',
+      review: '路床・路盤・表層・基層の違い',
+      point: '舗装は上から覚えるより、荷重をどこで受けるかで理解する。',
+    },
+    {
+      day: 'Day 3',
+      title: 'コンクリート・鉄筋',
+      aim: '構造物施工で混乱しやすい打継ぎと配筋を整理する',
+      read: '図解で理解「コンクリート打継目」「鉄筋のかぶり・あき・定着」',
+      solve: 'コンクリート・構造物を中心に10問',
+      review: '打継目・養生・かぶり・あき・定着',
+      point: 'コンクリートは「材料」ではなく「施工手順」とセットで覚える。',
+    },
+    {
+      day: 'Day 4',
+      title: '工程・品質管理',
+      aim: '工程表と品質管理図の見方をつかむ',
+      read: '図解で理解「ネットワーク工程表の見方」「品質管理図の見方」',
+      solve: '工程・品質・施工管理を中心に10問',
+      review: 'ヒストグラム vs 管理図',
+      point: '工程は順番、品質はばらつき、管理図は異常の発見と考える。',
+    },
+    {
+      day: 'Day 5',
+      title: '安全管理・仮設',
+      aim: '仮設構造物と安全管理の基本を整理する',
+      read: '図解で理解「土留め工法の基本」「型枠支保工と足場の違い」',
+      solve: '法規・安全管理を中心に10問',
+      review: '作業主任者・足場・型枠支保工・墜落防止',
+      point: '仮設は「何を支えるものか」「誰が作業する場所か」で区別する。',
+    },
+    {
+      day: 'Day 6',
+      title: '法規・技術者配置',
+      aim: '建設業法と技術者配置の関係を整理する',
+      read: '図解で理解「技術者配置と施工体制の関係」／ 重要数字マップ',
+      solve: '法規・安全管理を中心に10問',
+      review: '主任技術者・監理技術者・施工体制台帳・専任義務',
+      point: '元請＝必ず監理技術者ではない。下請契約の規模で整理する。',
+    },
+    {
+      day: 'Day 7',
+      title: '総復習',
+      aim: '1週間分の理解を問題演習で確認する',
+      read: '混同ポイント整理',
+      solve: 'ランダム20問',
+      review: '間違えた分野・重要数字マップ・図解で理解',
+      point: '最後は新しい知識を増やすより、間違えた理由をつぶす。',
+    },
+  ];
+
+  const cards = days.map(d => `
+    <div class="course-card">
+      <div class="course-day">${escapeHTML(d.day)}</div>
+      <div class="course-title">${escapeHTML(d.title)}</div>
+      <div class="course-aim">🎯 ${escapeHTML(d.aim)}</div>
+      <div class="course-rows">
+        <div class="course-row"><span class="course-row-label">読む</span><span class="course-row-body">${escapeHTML(d.read)}</span></div>
+        <div class="course-row"><span class="course-row-label">解く</span><span class="course-row-body">${escapeHTML(d.solve)}</span></div>
+        <div class="course-row"><span class="course-row-label">復習</span><span class="course-row-body">${escapeHTML(d.review)}</span></div>
+      </div>
+      <div class="course-point">💡 ${escapeHTML(d.point)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">7日間コース</div>
+    </div>
+    <div class="course-body">
+      <div class="course-intro">何から始めるか迷わないための7日間の学習導線です。1日1テーマで、読む→解く→復習の順に進めましょう。</div>
+      ${cards}
+    </div>
+  </div>`;
+}
+
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
 function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   const prev = document.getElementById('resume-dialog');
@@ -2173,6 +2275,7 @@ document.getElementById('app').addEventListener('click', e => {
       break;
     case 'go-confusion': go('confusion'); break;
     case 'go-diagrams':  go('diagrams');  break;
+    case 'go-course':    go('course');    break;
     case 'select-numbers-category':
       App.numbersCategory = el.dataset.value;
       render();
