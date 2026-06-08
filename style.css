@@ -1988,6 +1988,87 @@ html, body {
   line-height: 1.6;
 }
 
+/* ── DIAGRAMS (図解で理解) ─── */
+.diagram-body { padding: 16px; }
+
+.diagram-intro {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.diagram-card {
+  background: var(--white);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.diagram-cat-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  background: var(--blue-50);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+
+.diagram-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.diagram-desc {
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.diagram-svg-wrap {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: #f8fafc;
+}
+
+.diagram-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+.diagram-points { list-style: none; padding: 0; margin: 0 0 8px; }
+
+.diagram-points li {
+  position: relative;
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  padding-left: 18px;
+  margin-bottom: 4px;
+}
+
+.diagram-points li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.diagram-confuse {
+  font-size: 12px;
+  color: #7a4000;
+  background: #fff7ed;
+  border-radius: 4px;
+  padding: 7px 10px;
+  line-height: 1.6;
+}
+
 /* ── EXAM REVIEW ─── */
 .exam-review {
   background: var(--white);

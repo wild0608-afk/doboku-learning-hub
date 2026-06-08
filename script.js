@@ -367,6 +367,7 @@ function render() {
     guide:               renderGuide,
     numbers:             renderNumbers,
     confusion:           renderConfusion,
+    diagrams:            renderDiagrams,
   };
   const fn = fns[App.screen];
   if (fn) document.getElementById('app').innerHTML = fn();
@@ -577,6 +578,11 @@ function renderHome() {
           <span class="btn-icon">🧩</span>
           <span class="btn-label">混同ポイント整理</span>
           <span class="btn-sub">似た制度の違いを比較</span>
+        </button>
+        <button class="menu-btn full" data-action="go-diagrams">
+          <span class="btn-icon">📐</span>
+          <span class="btn-label">図解で理解</span>
+          <span class="btn-sub">図でつかむ重要論点</span>
         </button>
         <button class="menu-btn full" data-action="go-guide">
           <span class="btn-icon">📘</span>
@@ -1709,6 +1715,156 @@ function renderConfusion() {
   </div>`;
 }
 
+// ── DIAGRAMS (図解で理解) ──────────────────────────────────────────────
+function renderDiagrams() {
+  const data = [
+    {
+      category: '土工・基礎・舗装',
+      title: '土留め工法の基本',
+      desc: '掘削時に背面の地山が崩れないよう支える仮設構造の概念です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="土留め工法の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <rect x="0" y="45" width="150" height="118" fill="#e8edf5"/>
+        <rect x="150" y="122" width="170" height="41" fill="#eef2f8"/>
+        <rect x="146" y="22" width="8" height="133" fill="#3b6fb0"/>
+        <rect x="146" y="122" width="8" height="33" fill="#d97706"/>
+        <line x1="154" y1="80" x2="298" y2="80" stroke="#1f4e79" stroke-width="4"/>
+        <rect x="154" y="71" width="6" height="18" fill="#1f4e79"/>
+        <line x1="72" y1="100" x2="138" y2="100" stroke="#9aa7b8" stroke-width="2"/>
+        <polygon points="138,95 148,100 138,105" fill="#9aa7b8"/>
+        <text x="14" y="38" font-size="10" fill="#374151">背面地山（土圧）</text>
+        <text x="205" y="140" font-size="10" fill="#374151">掘削側</text>
+        <text x="184" y="74" font-size="10" fill="#1f4e79">切ばり・腹起し</text>
+        <text x="158" y="150" font-size="10" fill="#b45309">根入れ</text>
+        <text x="76" y="96" font-size="9" fill="#6b7280">土圧</text>
+      </svg>`,
+      points: ['土留め壁が背面の土圧を受け止める', '切ばり・腹起しで壁を内側から支える', '掘削底面より下の「根入れ」が安定の要'],
+      confuse: '水平に突っ張る「切ばり」と、壁に沿う横材「腹起し」の役割を混同しないこと。',
+    },
+    {
+      category: '工程・品質・施工管理',
+      title: 'ネットワーク工程表の見方',
+      desc: '結合点（○）と作業（→）で全体の流れと余裕を表す工程表です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="ネットワーク工程表の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <line x1="55" y1="86" x2="116" y2="60" stroke="#9aa7b8" stroke-width="2"/>
+        <polygon points="116,60 106,60 112,68" fill="#9aa7b8"/>
+        <line x1="55" y1="98" x2="116" y2="124" stroke="#1f4e79" stroke-width="4"/>
+        <polygon points="116,124 106,118 108,128" fill="#1f4e79"/>
+        <line x1="145" y1="60" x2="236" y2="84" stroke="#9aa7b8" stroke-width="2"/>
+        <polygon points="236,84 226,80 228,90" fill="#9aa7b8"/>
+        <line x1="145" y1="124" x2="236" y2="100" stroke="#1f4e79" stroke-width="4"/>
+        <polygon points="236,100 228,96 228,106" fill="#1f4e79"/>
+        <circle cx="40" cy="92" r="15" fill="#fff" stroke="#3b6fb0" stroke-width="2"/>
+        <circle cx="130" cy="56" r="15" fill="#fff" stroke="#3b6fb0" stroke-width="2"/>
+        <circle cx="130" cy="128" r="15" fill="#fff" stroke="#3b6fb0" stroke-width="2"/>
+        <circle cx="250" cy="92" r="15" fill="#fff" stroke="#3b6fb0" stroke-width="2"/>
+        <text x="36" y="96" font-size="11" fill="#1f4e79">1</text>
+        <text x="126" y="60" font-size="11" fill="#1f4e79">2</text>
+        <text x="126" y="132" font-size="11" fill="#1f4e79">3</text>
+        <text x="246" y="96" font-size="11" fill="#1f4e79">4</text>
+        <text x="72" y="62" font-size="9" fill="#6b7280">作業A</text>
+        <text x="68" y="128" font-size="9" fill="#1f4e79">作業B</text>
+        <text x="196" y="68" font-size="9" fill="#6b7280">作業C</text>
+        <text x="192" y="122" font-size="9" fill="#1f4e79">作業D</text>
+        <text x="150" y="160" font-size="9" fill="#1f4e79">太線＝クリティカルパス</text>
+      </svg>`,
+      points: ['結合点（○）と作業（→）で流れを表す', '所要日数が最長の経路がクリティカルパス', 'クリティカルパスの遅れは工期に直結'],
+      confuse: 'フリーフロートとトータルフロートの違いに注意（前者は後続作業に影響しない余裕）。',
+    },
+    {
+      category: 'コンクリート・構造物',
+      title: 'コンクリート打継目',
+      desc: '先に打ったコンクリートに、後から打つコンクリートを一体化させる境界面です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="コンクリート打継目の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <rect x="50" y="92" width="220" height="56" fill="#cdd8e8" stroke="#3b6fb0"/>
+        <rect x="50" y="50" width="220" height="42" fill="#e8eef7" stroke="#3b6fb0"/>
+        <line x1="50" y1="92" x2="270" y2="92" stroke="#d97706" stroke-width="3" stroke-dasharray="6 4"/>
+        <line x1="150" y1="92" x2="124" y2="34" stroke="#9aa7b8" stroke-width="1.5"/>
+        <polygon points="150,92 142,84 152,82" fill="#9aa7b8"/>
+        <text x="60" y="74" font-size="10" fill="#1f4e79">新コンクリート（後打ち）</text>
+        <text x="60" y="124" font-size="10" fill="#1f4e79">旧コンクリート（先打ち）</text>
+        <text x="96" y="30" font-size="9" fill="#b45309">打継面処理・レイタンス除去</text>
+        <text x="206" y="106" font-size="10" fill="#b45309">打継目</text>
+      </svg>`,
+      points: ['打継目は新旧コンクリートの境界面', '旧面のレイタンスを除去し清掃・湿潤にする', '一体化させ水みち・弱点をつくらない'],
+      confuse: '計画した「打継目」と、一体化に失敗した欠陥「コールドジョイント」を混同しないこと。',
+    },
+    {
+      category: '土工・基礎・舗装',
+      title: '盛土・切土・法面保護',
+      desc: '地形に対し土を盛る「盛土」と削る「切土」、その斜面を守る「法面保護」の関係です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="盛土・切土・法面の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <polygon points="190,70 210,70 210,150 300,150 300,28" fill="#e3e9f2" stroke="#3b6fb0"/>
+        <polygon points="30,150 120,70 190,70 190,150" fill="#efe6d6" stroke="#b08948"/>
+        <rect x="120" y="66" width="70" height="6" fill="#7b8794"/>
+        <rect x="240" y="96" width="18" height="5" fill="#7b8794"/>
+        <line x1="30" y1="150" x2="120" y2="70" stroke="#2f8f5b" stroke-width="4"/>
+        <line x1="210" y1="70" x2="300" y2="28" stroke="#2f8f5b" stroke-width="4"/>
+        <text x="58" y="122" font-size="10" fill="#8a6d2f">盛土</text>
+        <text x="250" y="136" font-size="10" fill="#1f4e79">切土</text>
+        <text x="134" y="60" font-size="9" fill="#374151">道路面</text>
+        <text x="224" y="92" font-size="9" fill="#374151">小段</text>
+        <text x="12" y="146" font-size="9" fill="#2f8f5b">法面保護</text>
+      </svg>`,
+      points: ['盛土は材料・含水比と締固めの管理が重要', '切土は法面の安定勾配と排水が重要', '法面保護工（植生・構造物）で侵食・崩壊を防ぐ'],
+      confuse: '「盛土＝締固め管理」「切土＝法面安定・排水管理」と主眼を取り違えないこと。',
+    },
+    {
+      category: '工程・品質・施工管理',
+      title: '品質管理図の見方',
+      desc: '時間の経過に沿って点を打ち、工程が安定しているかを判断する図です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="品質管理図の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <line x1="40" y1="20" x2="40" y2="150" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="40" y1="150" x2="300" y2="150" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="40" y1="52" x2="300" y2="52" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <line x1="40" y1="90" x2="300" y2="90" stroke="#1f4e79" stroke-width="1.5"/>
+        <line x1="40" y1="128" x2="300" y2="128" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <polyline points="62,96 100,82 138,100 178,72 218,40 258,104" fill="none" stroke="#3b6fb0" stroke-width="2"/>
+        <circle cx="62" cy="96" r="3" fill="#3b6fb0"/>
+        <circle cx="100" cy="82" r="3" fill="#3b6fb0"/>
+        <circle cx="138" cy="100" r="3" fill="#3b6fb0"/>
+        <circle cx="178" cy="72" r="3" fill="#3b6fb0"/>
+        <circle cx="218" cy="40" r="4" fill="#dc2626"/>
+        <circle cx="258" cy="104" r="3" fill="#3b6fb0"/>
+        <text x="296" y="50" font-size="9" fill="#dc2626" text-anchor="end">UCL</text>
+        <text x="296" y="86" font-size="9" fill="#1f4e79" text-anchor="end">CL</text>
+        <text x="296" y="126" font-size="9" fill="#dc2626" text-anchor="end">LCL</text>
+        <text x="196" y="34" font-size="9" fill="#dc2626">異常（限界外）</text>
+      </svg>`,
+      points: ['中心線（CL）と上下の管理限界線（UCL・LCL）を引く', '点が限界線の外に出たら異常を疑う', '限界内でも点の「くせ（偏り・連）」に注意'],
+      confuse: '「ばらつきの分布」を見るヒストグラムと、「時間的な変化」を見る管理図を混同しないこと。',
+    },
+  ];
+
+  const cards = data.map(item => `
+    <div class="diagram-card">
+      <div class="diagram-cat-tag">${escapeHTML(item.category)}</div>
+      <div class="diagram-title">${escapeHTML(item.title)}</div>
+      <div class="diagram-desc">${escapeHTML(item.desc)}</div>
+      <div class="diagram-svg-wrap">${item.svg}</div>
+      <ul class="diagram-points">${item.points.map(p => `<li>${escapeHTML(p)}</li>`).join('')}</ul>
+      <div class="diagram-confuse">⚠️ ${escapeHTML(item.confuse)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <div class="header">
+      <button class="btn-back" data-action="go-home">
+        <span class="btn-back-arrow">←</span>戻る
+      </button>
+      <div class="header-title">図解で理解</div>
+    </div>
+    <div class="diagram-body">
+      <div class="diagram-intro">文字だけでは分かりにくい論点を、オリジナルの概念図で整理します。</div>
+      ${cards}
+    </div>
+  </div>`;
+}
+
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
 function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   const prev = document.getElementById('resume-dialog');
@@ -1895,6 +2051,7 @@ document.getElementById('app').addEventListener('click', e => {
       go('numbers');
       break;
     case 'go-confusion': go('confusion'); break;
+    case 'go-diagrams':  go('diagrams');  break;
     case 'select-numbers-category':
       App.numbersCategory = el.dataset.value;
       render();
