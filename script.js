@@ -1838,6 +1838,127 @@ function renderDiagrams() {
       points: ['中心線（CL）と上下の管理限界線（UCL・LCL）を引く', '点が限界線の外に出たら異常を疑う', '限界内でも点の「くせ（偏り・連）」に注意'],
       confuse: '「ばらつきの分布」を見るヒストグラムと、「時間的な変化」を見る管理図を混同しないこと。',
     },
+    {
+      category: '土工・基礎・舗装',
+      title: '舗装の層構成',
+      desc: 'アスファルト舗装は、上から表層・基層・路盤・路床が役割を分担して交通荷重を支えます。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="舗装の層構成の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <rect x="40" y="42" width="180" height="16" fill="#374151"/>
+        <rect x="40" y="58" width="180" height="14" fill="#5b6675"/>
+        <rect x="40" y="72" width="180" height="20" fill="#9aa7b8"/>
+        <rect x="40" y="92" width="180" height="24" fill="#c2ccda"/>
+        <rect x="40" y="116" width="180" height="36" fill="#efe6d6"/>
+        <line x1="80" y1="20" x2="80" y2="40" stroke="#dc2626" stroke-width="2"/>
+        <polygon points="80,42 75,33 85,33" fill="#dc2626"/>
+        <line x1="130" y1="20" x2="130" y2="40" stroke="#dc2626" stroke-width="2"/>
+        <polygon points="130,42 125,33 135,33" fill="#dc2626"/>
+        <line x1="180" y1="20" x2="180" y2="40" stroke="#dc2626" stroke-width="2"/>
+        <polygon points="180,42 175,33 185,33" fill="#dc2626"/>
+        <text x="96" y="16" font-size="9" fill="#dc2626">交通荷重</text>
+        <text x="228" y="54" font-size="9" fill="#374151">表層</text>
+        <text x="228" y="70" font-size="9" fill="#374151">基層</text>
+        <text x="228" y="86" font-size="9" fill="#374151">上層路盤</text>
+        <text x="228" y="108" font-size="9" fill="#374151">下層路盤</text>
+        <text x="228" y="138" font-size="9" fill="#8a6d2f">路床</text>
+      </svg>`,
+      points: ['上層ほど高品質で、表層が交通荷重を直接受ける', '路盤は荷重を分散して路床へ伝える', '路床は舗装を支える土の部分'],
+      confuse: '砕石等の「路盤」と、その下の土の部分「路床」を取り違えないこと。',
+    },
+    {
+      category: '土工・基礎・舗装',
+      title: '土量変化率の考え方',
+      desc: '同じ土でも、地山・ほぐし・締固めで体積が変わります。その比を土量変化率（L・C）で表します。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="土量変化率の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <line x1="30" y1="132" x2="300" y2="132" stroke="#9aa7b8" stroke-width="1.5"/>
+        <rect x="52" y="62" width="52" height="70" fill="#9aa7b8"/>
+        <rect x="134" y="48" width="52" height="84" fill="#d8b98a"/>
+        <rect x="216" y="70" width="52" height="62" fill="#3b6fb0"/>
+        <text x="64" y="56" font-size="9" fill="#374151">1.0</text>
+        <text x="132" y="42" font-size="9" fill="#8a6d2f">L：1より大</text>
+        <text x="218" y="64" font-size="9" fill="#1f4e79">C：1より小</text>
+        <text x="64" y="148" font-size="9" fill="#374151">地山</text>
+        <text x="138" y="148" font-size="9" fill="#8a6d2f">ほぐし土</text>
+        <text x="222" y="148" font-size="9" fill="#1f4e79">締固め土</text>
+      </svg>`,
+      points: ['L＝ほぐした土量 ÷ 地山土量（ふつう1より大）', 'C＝締め固めた土量 ÷ 地山土量（ふつう1より小）', '地山土量を基準（1.0）として換算する'],
+      confuse: 'ほぐし率Lと締固め率Cは、どちらも「分母が地山土量」である点を取り違えないこと。',
+    },
+    {
+      category: '法規・安全管理',
+      title: '型枠支保工と足場の違い',
+      desc: '型枠支保工は「コンクリートの重さを下から支える」仮設、足場は「人が作業するための床」です。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="型枠支保工と足場の違いの概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <line x1="160" y1="22" x2="160" y2="150" stroke="#e5e7eb" stroke-width="1.5"/>
+        <rect x="20" y="44" width="116" height="12" fill="#d8b98a" stroke="#b08948"/>
+        <line x1="36" y1="56" x2="36" y2="140" stroke="#3b6fb0" stroke-width="4"/>
+        <line x1="78" y1="56" x2="78" y2="140" stroke="#3b6fb0" stroke-width="4"/>
+        <line x1="120" y1="56" x2="120" y2="140" stroke="#3b6fb0" stroke-width="4"/>
+        <line x1="14" y1="140" x2="146" y2="140" stroke="#9aa7b8" stroke-width="2"/>
+        <text x="30" y="38" font-size="9" fill="#8a6d2f">コンクリート・型枠</text>
+        <text x="42" y="158" font-size="10" fill="#1f4e79">型枠支保工</text>
+        <rect x="182" y="40" width="22" height="100" fill="#c2ccda" stroke="#9aa7b8"/>
+        <line x1="222" y1="40" x2="222" y2="140" stroke="#2f8f5b" stroke-width="3"/>
+        <line x1="288" y1="40" x2="288" y2="140" stroke="#2f8f5b" stroke-width="3"/>
+        <line x1="222" y1="74" x2="288" y2="74" stroke="#2f8f5b" stroke-width="3"/>
+        <line x1="222" y1="108" x2="288" y2="108" stroke="#2f8f5b" stroke-width="3"/>
+        <circle cx="246" cy="66" r="4" fill="#d97706"/>
+        <text x="184" y="34" font-size="9" fill="#374151">構造物</text>
+        <text x="246" y="158" font-size="10" fill="#2f8f5b">足場</text>
+      </svg>`,
+      points: ['型枠支保工はコンクリート荷重を下から支持する', '足場は作業者の通路・作業床を確保する', 'どちらも倒壊・墜落防止の安全管理が必要'],
+      confuse: 'コンクリートを支える「型枠支保工」と、人が乗る「足場」の目的を混同しないこと。',
+    },
+    {
+      category: 'コンクリート・構造物',
+      title: '鉄筋のかぶり・あき・定着',
+      desc: 'かぶりは鉄筋と表面の距離、あきは鉄筋どうしの間隔、定着は鉄筋が抜け出さない埋込み長さです。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="鉄筋のかぶり・あき・定着の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <rect x="34" y="44" width="170" height="92" fill="#e8eef7" stroke="#3b6fb0"/>
+        <circle cx="70" cy="112" r="7" fill="#1f4e79"/>
+        <circle cx="119" cy="112" r="7" fill="#1f4e79"/>
+        <circle cx="168" cy="112" r="7" fill="#1f4e79"/>
+        <line x1="70" y1="136" x2="70" y2="119" stroke="#d97706" stroke-width="1.5"/>
+        <text x="74" y="132" font-size="9" fill="#b45309">かぶり</text>
+        <line x1="77" y1="100" x2="112" y2="100" stroke="#dc2626" stroke-width="1.5"/>
+        <text x="80" y="96" font-size="9" fill="#dc2626">あき</text>
+        <rect x="236" y="80" width="60" height="56" fill="#cdd8e8" stroke="#3b6fb0"/>
+        <line x1="266" y1="44" x2="266" y2="120" stroke="#1f4e79" stroke-width="4"/>
+        <line x1="266" y1="120" x2="284" y2="120" stroke="#1f4e79" stroke-width="4"/>
+        <text x="230" y="60" font-size="9" fill="#1f4e79">定着（フック）</text>
+      </svg>`,
+      points: ['かぶり＝鉄筋を覆うコンクリート厚さ（耐久性・防錆）', 'あき＝鉄筋どうしの間隔（コンクリートの充填性）', '定着＝鉄筋が抜け出さない埋込み長さ'],
+      confuse: '表面までの距離「かぶり」と、鉄筋間の距離「あき」を混同しないこと。',
+    },
+    {
+      category: '法規・安全管理',
+      title: '技術者配置と施工体制の関係',
+      desc: '発注者から元請・下請へと続く施工体制で、元請には監理技術者、各下請には主任技術者を配置します。',
+      svg: `<svg viewBox="0 0 320 170" role="img" aria-label="技術者配置と施工体制の概念図">
+        <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
+        <line x1="160" y1="42" x2="160" y2="58" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="160" y1="82" x2="160" y2="92" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="95" y1="92" x2="225" y2="92" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="95" y1="92" x2="95" y2="104" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="225" y1="92" x2="225" y2="104" stroke="#9aa7b8" stroke-width="1.5"/>
+        <line x1="225" y1="128" x2="225" y2="142" stroke="#9aa7b8" stroke-width="1.5"/>
+        <rect x="122" y="20" width="76" height="22" rx="3" fill="#e8eef7" stroke="#3b6fb0"/>
+        <rect x="108" y="58" width="104" height="24" rx="3" fill="#dbe6f5" stroke="#1f4e79"/>
+        <rect x="40" y="104" width="110" height="24" rx="3" fill="#ffffff" stroke="#3b6fb0"/>
+        <rect x="170" y="104" width="110" height="24" rx="3" fill="#ffffff" stroke="#3b6fb0"/>
+        <rect x="170" y="142" width="110" height="22" rx="3" fill="#ffffff" stroke="#9aa7b8"/>
+        <text x="140" y="35" font-size="10" fill="#1f4e79">発注者</text>
+        <text x="116" y="74" font-size="9" fill="#1f4e79">元請（監理技術者）</text>
+        <text x="48" y="120" font-size="9" fill="#374151">下請（主任技術者）</text>
+        <text x="178" y="120" font-size="9" fill="#374151">下請（主任技術者）</text>
+        <text x="178" y="156" font-size="9" fill="#6b7280">孫請（主任技術者）</text>
+      </svg>`,
+      points: ['元請の特定建設業者は監理技術者を配置する', '各下請負人はそれぞれ主任技術者を配置する', '施工体制台帳・施工体系図で全体を明示する'],
+      confuse: '配置先が「監理技術者＝元請」「主任技術者＝各下請」である点を混同しないこと。',
+    },
   ];
 
   const cards = data.map(item => `
