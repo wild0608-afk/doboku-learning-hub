@@ -1936,7 +1936,7 @@ function renderDiagrams() {
     {
       category: '法規・安全管理',
       title: '技術者配置と施工体制の関係',
-      desc: '発注者から元請・下請へと続く施工体制で、元請には監理技術者、各下請には主任技術者を配置します。',
+      desc: '発注者から元請・下請へと続く施工体制で、各建設業者が工事内容に応じて主任技術者又は監理技術者を配置します。',
       svg: `<svg viewBox="0 0 320 170" role="img" aria-label="技術者配置と施工体制の概念図">
         <rect x="0" y="0" width="320" height="170" fill="#f8fafc"/>
         <line x1="160" y1="42" x2="160" y2="58" stroke="#9aa7b8" stroke-width="1.5"/>
@@ -1951,13 +1951,13 @@ function renderDiagrams() {
         <rect x="170" y="104" width="110" height="24" rx="3" fill="#ffffff" stroke="#3b6fb0"/>
         <rect x="170" y="142" width="110" height="22" rx="3" fill="#ffffff" stroke="#9aa7b8"/>
         <text x="140" y="35" font-size="10" fill="#1f4e79">発注者</text>
-        <text x="116" y="74" font-size="9" fill="#1f4e79">元請（監理技術者）</text>
+        <text x="114" y="74" font-size="9" fill="#1f4e79">元請（主任又は監理）</text>
         <text x="48" y="120" font-size="9" fill="#374151">下請（主任技術者）</text>
         <text x="178" y="120" font-size="9" fill="#374151">下請（主任技術者）</text>
         <text x="178" y="156" font-size="9" fill="#6b7280">孫請（主任技術者）</text>
       </svg>`,
-      points: ['元請の特定建設業者は監理技術者を配置する', '各下請負人はそれぞれ主任技術者を配置する', '施工体制台帳・施工体系図で全体を明示する'],
-      confuse: '配置先が「監理技術者＝元請」「主任技術者＝各下請」である点を混同しないこと。',
+      points: ['建設業者は工事現場に主任技術者又は監理技術者を配置する', '元請が一定規模以上を下請に出す場合は監理技術者が必要になる', '施工体制台帳・施工体系図で元請・下請の関係を明示する'],
+      confuse: '「元請＝必ず監理技術者」ではない。下請契約の規模などにより主任技術者か監理技術者かが分かれる点に注意。',
     },
   ];
 
