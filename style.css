@@ -2069,6 +2069,39 @@ html, body {
   line-height: 1.6;
 }
 
+/* ── 使い方ガイド ─── */
+.guide-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  margin: 6px 2px 10px;
+}
+
+.guide-intro-line {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.guide-list { list-style: none; padding: 0; margin: 0; }
+
+.guide-list li {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  padding: 6px 0 6px 10px;
+  border-left: 2px solid var(--blue-50);
+  margin-bottom: 4px;
+}
+
+.guide-list li:last-child { margin-bottom: 0; }
+
+.guide-list.guide-note li {
+  color: #7a4000;
+  border-left-color: #fde7c8;
+}
+
 /* ── 7日間コース ─── */
 .course-body { padding: 16px; }
 

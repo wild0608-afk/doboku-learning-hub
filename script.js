@@ -1402,6 +1402,16 @@ function renderGuide() {
       body: '似た工法・材料・制度の違いを左右比較で確認できます。知っているのに間違えやすい論点の整理に使います。',
     },
     {
+      icon: '📐',
+      title: '図解で理解',
+      body: '土留め・舗装の層構成・打継目・配筋・工程表・管理図など10テーマを、オリジナルの概念図で確認できます。形や流れをイメージでつかむのに使います。',
+    },
+    {
+      icon: '📘',
+      title: '7日間コース',
+      body: '何から始めるか迷わないための7日間の学習導線です。1日1テーマで「読む→解く→復習」の順に進められます。新人教育の最初のルートにも使えます。',
+    },
+    {
       icon: '🗓️',
       title: '試験日逆算プラン',
       body: '試験日までの残り日数と未学習問題数から、1日あたりのペース目標を確認できます。苦手問題がある場合は、まず間違い復習から進めるのがおすすめです。',
@@ -1423,6 +1433,64 @@ function renderGuide() {
     },
   ];
 
+  const guideTop = [
+    {
+      icon: '🚀',
+      title: 'このアプリの使い方',
+      intro: '迷ったら、この順番で使うのがおすすめです。',
+      list: [
+        'まずは「📘 7日間コース」で全体像をつかむ',
+        '次に「分野別学習」で弱い分野を解く',
+        '間違えた問題は「間違い復習」で戻る',
+        '数字は「重要数字マップ」で確認する',
+        '似た概念は「混同ポイント整理」で確認する',
+        '形や流れは「図解で理解」で確認する',
+      ],
+    },
+    {
+      icon: '🌱',
+      title: '初学者向けルート',
+      list: ['① 7日間コース', '② 図解で理解', '③ 分野別10問', '④ 間違えた問題の復習'],
+    },
+    {
+      icon: '🛠️',
+      title: '現場経験者向けルート',
+      list: ['① 図解で理解', '② 混同ポイント整理', '③ 分野別問題', '④ 苦手復習'],
+    },
+    {
+      icon: '⏰',
+      title: '試験前ルート',
+      list: ['① 重要数字マップ', '② ランダム20問', '③ 苦手復習', '④ 混同ポイント整理'],
+    },
+    {
+      icon: '🏢',
+      title: '社内教育での使い方',
+      list: [
+        '新人はまず「7日間コース」から',
+        '経験者は苦手分野だけ演習',
+        '朝礼・空き時間・移動中に5〜10問単位で使える',
+        '「図解で理解」「混同ポイント整理」は説明教材としても使える',
+      ],
+    },
+    {
+      icon: '⚠️',
+      title: '注意',
+      note: true,
+      list: [
+        'このアプリは社内学習・試験対策の補助用です。',
+        '法令や基準は改正されるため、重要な判断では最新の公式資料も確認してください。',
+        '図解は理解補助のオリジナル概念図であり、本試験図の再現ではありません。',
+      ],
+    },
+  ];
+
+  const topHtml = guideTop.map(item => `
+    <div class="stats-card">
+      <div class="stats-card-title">${item.icon} ${escapeHTML(item.title)}</div>
+      ${item.intro ? `<div class="guide-intro-line">${escapeHTML(item.intro)}</div>` : ''}
+      <ul class="guide-list${item.note ? ' guide-note' : ''}">${item.list.map(li => `<li>${escapeHTML(li)}</li>`).join('')}</ul>
+    </div>`).join('');
+
   const cards = items.map(item => `
     <div class="stats-card">
       <div class="stats-card-title">${item.icon} ${escapeHTML(item.title)}</div>
@@ -1438,6 +1506,9 @@ function renderGuide() {
       <div class="header-title">アプリの使い方</div>
     </div>
     <div class="stats-body">
+      <div class="guide-section-label">使い方ガイド</div>
+      ${topHtml}
+      <div class="guide-section-label">各機能の説明</div>
       ${cards}
     </div>
   </div>`;
